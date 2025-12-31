@@ -1,4 +1,4 @@
-# kytk/l4n-hcppipeline - Lin4Neuro HCP Pipeline Docker Container
+# kytk/l4n-hcppipelines - Lin4Neuro HCP Pipeline Docker Container
 
 [English](#english) | [日本語](#japanese)
 
@@ -7,7 +7,7 @@
 ## English
 
 ### Overview
-`kytk/l4n-hcppipeline` is a comprehensive Docker container for neuroimaging analysis with the Human Connectome Project (HCP) Pipeline. The container provides a complete desktop environment with pre-installed neuroimaging software packages. The container runs an XFCE4 desktop accessible via web browser through noVNC.
+`kytk/l4n-hcppipelines` is a comprehensive Docker container for neuroimaging analysis with the Human Connectome Project (HCP) Pipeline. The container provides a complete desktop environment with pre-installed neuroimaging software packages. The container runs an XFCE4 desktop accessible via web browser through noVNC.
 
 ### Features
 - **Complete Desktop Environment**: XFCE4 desktop with web browser access
@@ -41,7 +41,7 @@ docker run \
   --name l4n-hcp \
   -d -p 6080:6080 \
   -v .:/home/brain/share \
-  kytk/l4n-hcppipeline:latest
+  kytk/l4n-hcppipelines:latest
 ```
 
 #### Interactive Shell Mode
@@ -53,7 +53,7 @@ docker run -it \
   -v .:/home/brain/share \
   -e MODE=bash \
   --name l4n-hcp \
-  kytk/l4n-hcppipeline:latest
+  kytk/l4n-hcppipelines:latest
 ```
 
 #### Access the Desktop
@@ -115,7 +115,7 @@ docker run \
   -d -p 6080:6080 \
   -e RESOLUTION=1920x1080x24 \
   -v .:/home/brain/share \
-  kytk/l4n-hcppipeline:latest
+  kytk/l4n-hcppipelines:latest
 ```
 
 Default resolution: 1600x900x24
@@ -148,7 +148,7 @@ docker run \
   -v .:/home/brain/share \
   -v /path/to/neuroimaging/data:/home/brain/data \
   --name l4n-hcp \
-  kytk/l4n-hcppipeline:latest
+  kytk/l4n-hcppipelines:latest
 ```
 
 #### Interactive session
@@ -160,7 +160,7 @@ docker run -it \
   -v .:/home/brain/share \
   -e MODE=bash \
   --name l4n-hcp \
-  kytk/l4n-hcppipeline:latest \
+  kytk/l4n-hcppipelines:latest \
   /bin/bash
 ```
 
@@ -175,7 +175,7 @@ docker run \
   -v .:/home/brain/share \
   -m 8g \
   --name l4n-hcp \
-  kytk/l4n-hcppipeline:latest
+  kytk/l4n-hcppipelines:latest
 ```
 
 ### Container Management
@@ -206,7 +206,7 @@ docker rm -f l4n-hcp
 ## Japanese
 
 ### 概要
-`kytk/l4n-hcppipeline` は、Human Connectome Project (HCP) Pipeline を含む神経画像解析のための統合Dockerコンテナです。事前にインストールされた神経画像解析ソフトウェアパッケージを含む完全なデスクトップ環境を提供し、noVNCを通じてWebブラウザからXFCE4デスクトップにアクセスできます。
+`kytk/l4n-hcppipelines` は、Human Connectome Project (HCP) Pipeline を含む神経画像解析のための統合Dockerコンテナです。事前にインストールされた神経画像解析ソフトウェアパッケージを含む完全なデスクトップ環境を提供し、noVNCを通じてWebブラウザからXFCE4デスクトップにアクセスできます。
 
 ### 特徴
 - **完全なデスクトップ環境**: WebブラウザアクセスでXFCE4デスクトップ
@@ -240,7 +240,7 @@ docker run \
   --name l4n-hcp \
   -d -p 6080:6080 \
   -v .:/home/brain/share \
-  kytk/l4n-hcppipeline:latest
+  kytk/l4n-hcppipelines:latest
 ```
 
 #### 対話型シェルモード
@@ -252,7 +252,7 @@ docker run -it \
   -v .:/home/brain/share \
   -e MODE=bash \
   --name l4n-hcp \
-  kytk/l4n-hcppipeline:latest
+  kytk/l4n-hcppipelines:latest
 ```
 
 #### デスクトップへのアクセス
@@ -314,7 +314,7 @@ docker run \
   -d -p 6080:6080 \
   -e RESOLUTION=1920x1080x24 \
   -v .:/home/brain/share \
-  kytk/l4n-hcppipeline:latest
+  kytk/l4n-hcppipelines:latest
 ```
 
 デフォルト解像度: 1600x900x24
@@ -347,7 +347,7 @@ docker run \
   -v .:/home/brain/share \
   -v /path/to/neuroimaging/data:/home/brain/data \
   --name l4n-hcp \
-  kytk/l4n-hcppipeline:latest
+  kytk/l4n-hcppipelines:latest
 ```
 
 #### 対話セッション
@@ -359,7 +359,7 @@ docker run -it \
   -v .:/home/brain/share \
   -e MODE=bash \
   --name l4n-hcp \
-  kytk/l4n-hcppipeline:latest \
+  kytk/l4n-hcppipelines:latest \
   /bin/bash
 ```
 
@@ -374,7 +374,7 @@ docker run \
   -v .:/home/brain/share \
   -m 8g \
   --name l4n-hcp \
-  kytk/l4n-hcppipeline:latest
+  kytk/l4n-hcppipelines:latest
 ```
 
 ### コンテナ管理
@@ -436,9 +436,9 @@ This container includes multiple software packages, each with its own license. U
 
 ### Support
 - Author: K. Nemoto
-- GitHub: https://github.com/kytk/l4n-HCPpipeline
+- GitHub: https://github.com/kytk/l4n-HCPpipelines
 - Lin4Neuro website: https://www.nemotos.net
-- Issues: https://github.com/kytk/l4n-HCPpipeline/issues
+- Issues: https://github.com/kytk/l4n-HCPpipelines/issues
 
 ### Version History
 - v1.0 (December 2025): Initial release with HCP Pipelines v5.0.0 and complete neuroimaging analysis environment
