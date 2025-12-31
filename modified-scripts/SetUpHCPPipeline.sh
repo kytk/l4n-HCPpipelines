@@ -6,7 +6,7 @@ SAVEHCPPIPE="${HCPPIPEDIR:-}"
 ## Edit this line: environment variable for location of HCP Pipeline repository
 ## If you leave it blank, and $HCPPIPEDIR already exists in the environment,
 ## that will be used instead (via the SAVEHCPPIPE variable, defined above)
-export HCPPIPEDIR=${HOME}/projects/Pipelines
+export HCPPIPEDIR="${HOME}/projects/HCPpipelines"
 
 # Don't edit this section, it allows sourcing SetUp... without editing it if you set things in advance
 if [[ -z "$HCPPIPEDIR" ]]
@@ -20,7 +20,7 @@ then
 fi
 
 ## Edit this section: set up other environment variables
-export MSMBINDIR="/usr/local/fsl/bin"
+export MSMBINDIR=/usr/local/FSL/bin
 export MATLAB_COMPILER_RUNTIME=/usr/local/MATLAB/MCR/R2022b
 # export FSL_FIXDIR=/usr/local/fix # only needed for legacy fix
 # If a suitable version of wb_command is on your $PATH, CARET7DIR can be blank

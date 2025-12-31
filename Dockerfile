@@ -93,7 +93,7 @@ RUN --mount=type=bind,source=packages,target=/tmp/packages \
     cd /home/brain/git && \
     git clone https://github.com/Washington-University/HCPpipelines.git && \
     mkdir -p /home/brain/projects && \
-    cp -r HCPpipelines /home/brain/projects/Pipelines 
+    cp -r HCPpipelines /home/brain/projects/ 
 
 
 
@@ -191,7 +191,7 @@ COPY --from=builder /home/brain/matlab/ /home/brain/matlab/
 COPY --from=builder /home/brain/projects/ /home/brain/projects/
 
 # Copy modified scripts to override default ones
-COPY modified-scripts/* /home/brain/projects/Pipelines/Examples/Scripts/
+COPY modified-scripts/* /home/brain/projects/HCPpipelines/Examples/Scripts/
 
 # Part 2g: Workbench
 RUN set -ex && \
