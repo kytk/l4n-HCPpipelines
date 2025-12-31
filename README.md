@@ -1,4 +1,4 @@
-# Lin4Neuro - HCP Pipeline Docker Container
+# Lin4Neuro - HCP Pipelines Docker Container
 
 English | [日本語](#日本語)
 
@@ -6,7 +6,7 @@ English | [日本語](#日本語)
 
 ## English
 
-Lin4Neuro is a customized Ubuntu-based Linux distribution for neuroimaging analysis. This Docker container includes the Human Connectome Project (HCP) Pipeline and all necessary neuroimaging software tools.
+Lin4Neuro is a customized Ubuntu-based Linux distribution for neuroimaging analysis. This Docker container includes the Human Connectome Project (HCP) Pipelines and all necessary neuroimaging software tools.
 
 ### Included Software
 
@@ -45,7 +45,7 @@ docker run \
   --name l4n-hcp \
   -d -p 6080:6080 \
   -v .:/home/brain/share \
-  kytk/l4n-hcppipeline:latest
+  kytk/l4n-hcppipelines:latest
 ```
 
 ### Accessing the Desktop Environment
@@ -89,7 +89,7 @@ docker run \
   -d -p 6080:6080 \
   -e RESOLUTION=1920x1080x24 \
   -v .:/home/brain/share \
-  kytk/l4n-hcppipeline:latest
+  kytk/l4n-hcppipelines:latest
 ```
 
 Default resolution: 1600x900x24
@@ -122,14 +122,14 @@ docker rm -f l4n-hcp
 ### Support
 
 For issues and questions, please visit:
-- GitHub Issues: https://github.com/kytk/l4n-HCPpipeline/issues
+- GitHub Issues: https://github.com/kytk/l4n-HCPpipelines/issues
 - Lin4Neuro website: https://www.nemotos.net
 
 ---
 
 ## 日本語
 
-Lin4Neuro は、ニューロイメージング解析用にカスタマイズされた Ubuntu ベースの Linux ディストリビューションです。この Docker コンテナには、Human Connectome Project (HCP) Pipeline と必要なニューロイメージング解析ソフトウェアがすべて含まれています。
+Lin4Neuro は、ニューロイメージング解析用にカスタマイズされた Ubuntu ベースの Linux ディストリビューションです。この Docker コンテナには、Human Connectome Project (HCP) Pipelines と必要なニューロイメージング解析ソフトウェアがすべて含まれています。
 
 ### 含まれるソフトウェア
 
@@ -168,7 +168,7 @@ docker run \
   --name l4n-hcp \
   -d -p 6080:6080 \
   -v .:/home/brain/share \
-  kytk/l4n-hcppipeline:latest
+  kytk/l4n-hcppipelines:latest
 ```
 
 ### デスクトップ環境へのアクセス
@@ -212,7 +212,7 @@ docker run \
   -d -p 6080:6080 \
   -e RESOLUTION=1920x1080x24 \
   -v .:/home/brain/share \
-  kytk/l4n-hcppipeline:latest
+  kytk/l4n-hcppipelines:latest
 ```
 
 デフォルト解像度: 1600x900x24
@@ -245,7 +245,7 @@ docker rm -f l4n-hcp
 ### サポート
 
 問題や質問については、以下をご覧ください：
-- GitHub Issues: https://github.com/kytk/l4n-HCPpipeline/issues
+- GitHub Issues: https://github.com/kytk/l4n-HCPpipelines/issues
 - Lin4Neuro ウェブサイト: https://www.nemotos.net
 
 ---
