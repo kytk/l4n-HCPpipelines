@@ -6,7 +6,7 @@
 # Description: This Dockerfile uses a multi-stage build to create a smaller,
 #              optimized container image for neuroimaging analysis.
 
-# 1.0
+# 1.1
 
 #------------------------------------------------------------------------------
 # Stage 1: The "Builder" Stage
@@ -93,7 +93,9 @@ RUN --mount=type=bind,source=packages,target=/tmp/packages \
     cd /home/brain/git && \
     git clone https://github.com/Washington-University/HCPpipelines.git && \
     mkdir -p /home/brain/projects && \
-    cp -r HCPpipelines /home/brain/projects/Pipelines
+    cp -r HCPpipelines /home/brain/projects/Pipelines 
+
+
 
 #------------------------------------------------------------------------------
 # Stage 2: The "Final" Stage
@@ -151,7 +153,7 @@ RUN --mount=type=bind,source=packages,target=/tmp/packages \
     python3 -m pip install --upgrade pip && \
     pip install --no-cache-dir \
        numpy pandas matplotlib seaborn jupyter notebook gdcm \
-       pydicom heudiconv nipype nibabel && \
+       pydicom heudiconv nipype nibabel threadpoolctl && \
     # Firefox setup
     install -d -m 0755 /etc/apt/keyrings && \
     wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | \
@@ -187,6 +189,9 @@ COPY --from=builder /usr/local/fsl/ /usr/local/fsl/
 COPY --from=builder /home/brain/git/ /home/brain/git/
 COPY --from=builder /home/brain/matlab/ /home/brain/matlab/
 COPY --from=builder /home/brain/projects/ /home/brain/projects/
+
+# Copy modified scripts to override default ones
+COPY modified-scripts/* /home/brain/projects/Pipelines/Examples/Scripts/
 
 # Part 2g: Workbench
 RUN set -ex && \
