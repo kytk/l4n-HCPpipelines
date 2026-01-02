@@ -20,7 +20,7 @@ then
 fi
 
 ## Edit this section: set up other environment variables
-export MSMBINDIR=/usr/local/FSL/bin
+export MSMBINDIR=/usr/local/fsl/bin
 export MATLAB_COMPILER_RUNTIME=/usr/local/MATLAB/MCR/R2022b
 # export FSL_FIXDIR=/usr/local/fix # only needed for legacy fix
 # If a suitable version of wb_command is on your $PATH, CARET7DIR can be blank
