@@ -87,7 +87,7 @@ get_batch_options() {
 
 	command_line_specified_study_folder=""
 	command_line_specified_session=""
-	command_line_specified_run_local="FALSE"
+	command_line_specified_run_local="TRUE"
 
 	local index=0
 	local numArgs=${#arguments[@]}
