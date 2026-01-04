@@ -7,7 +7,7 @@
 ## English
 
 ### Overview
-`kytk/l4n-hcppipelines` is a comprehensive Docker container for neuroimaging analysis with the Human Connectome Project (HCP) Pipeline. The container provides a complete desktop environment with pre-installed neuroimaging software packages. The container runs an XFCE4 desktop accessible via web browser through noVNC.
+Lin4Neuro is a customized Ubuntu-based Linux distribution for neuroimaging analysis. `kytk/l4n-hcppipelines` is a comprehensive Docker container that includes the Human Connectome Project (HCP) Pipelines and all necessary neuroimaging software tools. The container provides a complete desktop environment with pre-installed neuroimaging software packages. The container runs an XFCE4 desktop accessible via web browser through noVNC.
 
 ### Features
 - **Complete Desktop Environment**: XFCE4 desktop with web browser access
@@ -32,8 +32,21 @@
   - You can obtain a FreeSurfer license from: https://surfer.nmr.mgh.harvard.edu/registration.html
 
 #### Basic Usage (GUI Mode)
+
+**Linux/macOS:**
 ```bash
 # Place your FreeSurfer license.txt in the current directory
+docker run \
+  --shm-size=4g \
+  --platform linux/amd64 \
+  --name l4n-hcp \
+  -d -p 6080:6080 \
+  -v .:/home/brain/share \
+  kytk/l4n-hcppipelines:latest
+```
+
+**Windows (--privileged is needed):**
+```bash
 docker run \
   --shm-size=4g \
   --privileged \
@@ -102,6 +115,10 @@ After accessing the container desktop, open a terminal and run:
 sudo cp /home/brain/share/license.txt /usr/local/freesurfer/6.0.1/
 ```
 
+### Data path
+
+Modified scripts assumes that your data is saved under `~/share/HCPpipelines_ExampleData` . Please prepare "HCPpipelines_ExampleData" directory under your shared path.
+
 ### Custom Resolution
 
 You can specify a custom resolution when starting the container by setting the `RESOLUTION` environment variable:
@@ -137,6 +154,8 @@ Default resolution: 1600x900x24
 - **MATLAB Runtime**: `/usr/local/MATLAB/MATLAB_Runtime/R2022b`
 
 ### Example Commands
+
+**Note:** The following examples include `--privileged` flag for Windows compatibility. On Linux/macOS, you can omit this flag.
 
 #### Run with data mount
 ```bash
@@ -206,7 +225,7 @@ docker rm -f l4n-hcp
 ## Japanese
 
 ### 概要
-`kytk/l4n-hcppipelines` は、Human Connectome Project (HCP) Pipeline を含む神経画像解析のための統合Dockerコンテナです。事前にインストールされた神経画像解析ソフトウェアパッケージを含む完全なデスクトップ環境を提供し、noVNCを通じてWebブラウザからXFCE4デスクトップにアクセスできます。
+Lin4Neuro は、ニューロイメージング解析用にカスタマイズされた Ubuntu ベースの Linux ディストリビューションです。`kytk/l4n-hcppipelines` は、Human Connectome Project (HCP) Pipelines と必要なニューロイメージング解析ソフトウェアがすべて含まれた統合Dockerコンテナです。事前にインストールされた神経画像解析ソフトウェアパッケージを含む完全なデスクトップ環境を提供し、noVNCを通じてWebブラウザからXFCE4デスクトップにアクセスできます。
 
 ### 特徴
 - **完全なデスクトップ環境**: WebブラウザアクセスでXFCE4デスクトップ
@@ -231,8 +250,21 @@ docker rm -f l4n-hcp
   - FreeSurfer のライセンスは以下から取得できます: https://surfer.nmr.mgh.harvard.edu/registration.html
 
 #### 基本使用方法（GUIモード）
+
+**Linux, macOS:**
 ```bash
 # FreeSurferのlicense.txtを現在のディレクトリに配置
+docker run \
+  --shm-size=4g \
+  --platform linux/amd64 \
+  --name l4n-hcp \
+  -d -p 6080:6080 \
+  -v .:/home/brain/share \
+  kytk/l4n-hcppipelines:latest
+```
+
+**Windows (--privileged が必要):**
+```bash
 docker run \
   --shm-size=4g \
   --privileged \
@@ -301,6 +333,10 @@ docker cp license.txt l4n-hcp:/usr/local/freesurfer/6.0.1/
 sudo cp /home/brain/share/license.txt /usr/local/freesurfer/6.0.1/
 ```
 
+### データのパス
+
+修正したスクリプトは、HCP Pipelinesの解析データが  `~/share/HCPpipelines_ExampleData` にあると想定しています。したがって、 "HCPpipelines_ExampleData" ディレクトリを共有ディレクトリの直下に準備してください。
+
 ### カスタム解像度
 
 コンテナ起動時に `RESOLUTION` 環境変数を設定することで、カスタム解像度を指定できます：
@@ -336,6 +372,8 @@ docker run \
 - **MATLAB Runtime**: `/usr/local/MATLAB/MATLAB_Runtime/R2022b`
 
 ### コマンド例
+
+**注意:** 以下の例では Windows 互換性のために `--privileged` フラグを含めています。Linux/macOS ではこのフラグを省略できます。
 
 #### データマウントありで実行
 ```bash
@@ -408,7 +446,7 @@ docker rm -f l4n-hcp
 - RAM: 8GB minimum, 16GB+ recommended (for HCP Pipeline processing)
 - Disk space: ~20GB for container image
 - Supported platforms: Linux (x86_64), macOS (x86_64), Windows with WSL2
-- Docker flags required: `--shm-size=4g --privileged --platform linux/amd64`
+- Docker flags required: `--shm-size=4g --platform linux/amd64` (add `--privileged` for Windows)
 
 ### Container Details
 - Base image: Ubuntu 22.04 LTS
@@ -441,4 +479,5 @@ This container includes multiple software packages, each with its own license. U
 - Issues: https://github.com/kytk/l4n-HCPpipelines/issues
 
 ### Version History
-- v1.0 (December 2025): Initial release with HCP Pipelines v5.0.0 and complete neuroimaging analysis environment
+- 2026-01-04: modify scripts so that data can be saved outside containers.
+- 2025-12-25: Initial release with HCP Pipelines v5.0.0 and complete neuroimaging analysis environment

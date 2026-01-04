@@ -37,6 +37,20 @@ cd /path/to/your/shared/directory
 
 3. Run the following command to start the container:
 
+- Linux/macOS
+
+```bash
+docker run \
+  --shm-size=4g \
+  --platform linux/amd64 \
+  --name l4n-hcp \
+  -d -p 6080:6080 \
+  -v .:/home/brain/share \
+  kytk/l4n-hcppipelines:latest
+```
+
+- Windows (--privileged is needed)
+
 ```bash
 docker run \
   --shm-size=4g \
@@ -75,6 +89,11 @@ After accessing the container desktop, open a terminal and run:
 ```bash
 sudo cp /home/brain/share/license.txt /usr/local/freesurfer/6.0.1/
 ```
+
+### Data path
+
+Modified scripts assumes that your data is saved under `~/share/HCPpipelines_ExampleData` . Please prepare "HCPpipelines_ExampleData" directory under your shared path.
+
 
 ### Custom Resolution
 
@@ -160,6 +179,20 @@ cd 共有ディレクトリのパス
 
 3. 以下のコマンドでコンテナを起動します：
 
+- Linux, macOS
+
+```bash
+docker run \
+  --shm-size=4g \
+  --platform linux/amd64 \
+  --name l4n-hcp \
+  -d -p 6080:6080 \
+  -v .:/home/brain/share \
+  kytk/l4n-hcppipelines:latest
+```
+
+- Windows
+
 ```bash
 docker run \
   --shm-size=4g \
@@ -198,6 +231,12 @@ docker cp license.txt l4n-hcp:/usr/local/freesurfer/6.0.1/
 ```bash
 sudo cp /home/brain/share/license.txt /usr/local/freesurfer/6.0.1/
 ```
+
+### データのパス
+
+修正したスクリプトは、HCP Pipelinesの解析データが  `~/share/HCPpipelines_ExampleData` にあると想定しています。したがって、 "HCPpipelines_ExampleData" ディレクトリを共有ディレクトリの直下に準備してください。
+
+
 
 ### カスタム解像度
 
@@ -260,5 +299,4 @@ This Docker container includes multiple software packages, each with its own lic
 - Other software: Various open-source licenses
 
 **Author:** K. Nemoto
-**Date:** December 25, 2025
-**Version:** 1.0
+**Date:** 2026-01-04
