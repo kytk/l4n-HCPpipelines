@@ -1,8 +1,10 @@
 #!/bin/bash
 
 # Global default values
-DEFAULT_STUDY_FOLDER="${HOME}/projects/HCPpipelines_ExampleData"
-DEFAULT_SUBJECT_LIST="100307 100610"
+#DEFAULT_STUDY_FOLDER="${HOME}/projects/HCPpipelines_ExampleData"
+DEFAULT_STUDY_FOLDER="${HOME}/share/HCPpipelines_ExampleData"
+#DEFAULT_SUBJECT_LIST="100307 100610"
+DEFAULT_SUBJECT_LIST="100307"
 DEFAULT_ENVIRONMENT_SCRIPT="${HOME}/projects/HCPpipelines/Examples/Scripts/SetUpHCPPipeline.sh"
 DEFAULT_RUN_LOCAL="FALSE"
 #DEFAULT_FIXDIR="${HOME}/tools/fix1.06"  ##OPTIONAL: If not set will use $FSL_FIXDIR specified in EnvironmentScript (pyfix recommended, leave unset)

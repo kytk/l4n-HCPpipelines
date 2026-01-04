@@ -54,8 +54,10 @@ get_batch_options() {
 get_batch_options "$@"
 
 # Default values
-StudyFolder="${HOME}/projects/HCPpipelines_ExampleData" #Location of Subject folders (named by subjectID)
-Subjlist="100206 100307 100408" #Space delimited list of subject IDs
+#StudyFolder="${HOME}/projects/HCPpipelines_ExampleData" #Location of Subject folders (named by subjectID)
+StudyFolder="${HOME}/share/HCPpipelines_ExampleData" #Location of Subject folders (named by subjectID)
+#Subjlist="100206 100307 100408" #Space delimited list of subject IDs
+Subjlist="100307" #Space delimited list of subject IDs
 #RegName="NONE"
 RegName="MSMAll"
 

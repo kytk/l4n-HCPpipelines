@@ -1,6 +1,7 @@
 #!/bin/bash 
 
-StudyFolder="${HOME}/projects/HCPpipelines_ExampleData" #Location of Subject folders (named by subjectID)
+#StudyFolder="${HOME}/projects/HCPpipelines_ExampleData" #Location of Subject folders (named by subjectID)
+StudyFolder="${HOME}/share/HCPpipelines_ExampleData" #Location of Subject folders (named by subjectID)
 Subjects=(HCA6002236) #list of subject IDs
 PossibleVisits=(V1_MR V2_MR V3_MR)
 ExcludeVisits=()
