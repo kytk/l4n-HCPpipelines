@@ -2,11 +2,10 @@
 
 # Dockerfile for kytk/l4n-HCPpipeline with Multi-Stage Build
 # Author: K. Nemoto
-# Date: 25 Dec 2025
+# Date: 09 Jan 2026
 # Description: This Dockerfile uses a multi-stage build to create a smaller,
 #              optimized container image for neuroimaging analysis.
 
-# 1.1
 
 #------------------------------------------------------------------------------
 # Stage 1: The "Builder" Stage
@@ -45,14 +44,8 @@ RUN --mount=type=bind,source=packages,target=/tmp/packages \
     # FreeSurfer 6.0.1
     ## install libpng12
     cd /tmp/ && \
-    wget https://ppa.launchpadcontent.net/linuxuprising/libpng12/ubuntu/pool/main/libp/libpng/libpng_1.2.54.orig.tar.xz && \
-    tar Jxfv libpng_1.2.54.orig.tar.xz && \
-    cd libpng-1.2.54 && \
-    ./configure && \
-    make && \
-    make install && \
-    ln -s /usr/local/lib/libpng12.so.0.54.0 /usr/lib/libpng12.so && \
-    ln -s /usr/local/lib/libpng12.so.0.54.0 /usr/lib/libpng12.so.0 && \
+    wget https://launchpad.net/~ubuntu-security/+archive/ubuntu/ppa/+build/15108504/+files/libpng12-0_1.2.54-1ubuntu1.1_amd64.deb && \
+    apt install ./libpng12-0_1.2.54-1ubuntu1.1_amd64.deb && \
     ## install FreeSurfer 6.0.1 under /usr/local/freesurfer/6.0.1
     mkdir -p /usr/local/freesurfer/ && \
     tar -xf /tmp/packages/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.1.tar.gz -C /usr/local/freesurfer && \
