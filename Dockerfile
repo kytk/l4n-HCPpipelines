@@ -44,7 +44,7 @@ RUN --mount=type=bind,source=packages,target=/tmp/packages \
     # FreeSurfer 6.0.1
     ## install libpng12
     cd /tmp/ && \
-    wget https://launchpad.net/~ubuntu-security/+archive/ubuntu/ppa/+build/15108504/+files/libpng12-0_1.2.54-1ubuntu1.1_amd64.deb && \
+    wget http://ppa.launchpad.net/linuxuprising/libpng12/ubuntu/pool/main/libp/libpng/libpng12-0_1.2.54-1ubuntu1.1+1~ppa0~eoan_amd64.deb && \
     apt install ./libpng12-0_1.2.54-1ubuntu1.1_amd64.deb && \
     ## install FreeSurfer 6.0.1 under /usr/local/freesurfer/6.0.1
     mkdir -p /usr/local/freesurfer/ && \
