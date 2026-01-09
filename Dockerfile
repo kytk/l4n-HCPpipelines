@@ -45,7 +45,7 @@ RUN --mount=type=bind,source=packages,target=/tmp/packages \
     ## install libpng12
     cd /tmp/ && \
     wget http://ppa.launchpad.net/linuxuprising/libpng12/ubuntu/pool/main/libp/libpng/libpng12-0_1.2.54-1ubuntu1.1+1~ppa0~eoan_amd64.deb && \
-    apt install ./libpng12-0_1.2.54-1ubuntu1.1_amd64.deb && \
+    apt install -y ./libpng12-0_1.2.54-1ubuntu1.1+1~ppa0~eoan_amd64.deb && \
     ## install FreeSurfer 6.0.1 under /usr/local/freesurfer/6.0.1
     mkdir -p /usr/local/freesurfer/ && \
     tar -xf /tmp/packages/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.1.tar.gz -C /usr/local/freesurfer && \
