@@ -101,6 +101,10 @@ else
     export PATH="$FSLDIR/bin:$PATH"
 fi
 export PATH="$CARET7DIR:$PATH"
+# l4n-HCPpipelines: wb_command is installed in /usr/bin, so the line above puts
+# /usr/bin (system Python 3.10 without the HCP packages) first in PATH. Keep the
+# container's Python venv first so that "python3" (CorrThick, reclean) finds it.
+export PATH="/opt/venv/bin:$PATH"
 
 # Source extra stuff that pipelines authors may need to edit, but users shouldn't ever need to
 # by separating them this way, a user can continue to use their previous setup file even if we

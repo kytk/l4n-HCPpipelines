@@ -14,7 +14,7 @@
 #   - Image size: all pruning now happens in the builder stages BEFORE the
 #     COPY --from steps. Deleting files in a later layer never shrinks a
 #     Docker image, so the old Part 4/5 cleanup had no effect. Pruned:
-#     FSL conda package cache (pkgs/, 8.4 GB), FSL headers and compiler
+#     FSL conda package cache (pkgs/), FSL headers and compiler
 #     sysroot, NVIDIA/CUDA libraries of the MATLAB runtime (2.7 GB, no GPU)
 #   - Ownership: brain is created first and files that must belong to it are
 #     copied with --chown. The old recursive chown over /home/brain made
@@ -23,6 +23,10 @@
 #     FreeSurfer's Qt GUI libraries could not load it)
 #   - MSM and libpng12 are taken from build/packages instead of the network
 #   - AlizaMS removed
+#   - Shared folder: always /home/brain/share (Windows needs an NTFS drive;
+#     --privileged and the /root/share bind-mount workaround are gone), and
+#     /etc/gitconfig sets safe.directory='*' and core.fileMode=false
+#   - FSL: 6.0.7.18 -> 6.0.7.23 (eddy, fugue, melodic, pyfix 0.10.0, ...)
 #   - Python: one venv at /opt/venv on Python 3.12 (deadsnakes) holds every
 #     pip package, for HCP Pipelines and for the user alike. jammy's own
 #     Python 3.10 is left to apt; pcntoolkit 1.x does not run on 3.10
@@ -117,18 +121,21 @@ RUN --mount=type=bind,source=build/packages/MATLAB_Runtime_R2022b_Update_7_glnxa
     echo "MATLAB Runtime after cleanup: $(du -sh /usr/local/MATLAB/MCR/R2022b | cut -f1)"
 
 #------------------------------------------------------------------------------
-# fsl-builder: FSL + MSM
+# fsl-builder: FSL 6.0.7.23 + MSM
+# The tarball is made on jammy from a fresh fslinstaller install with
+# lin4neuro-jammy/build-scripts/make-fsl-tarball.sh, which leaves out the
+# conda package cache (pkgs/).
 #------------------------------------------------------------------------------
 FROM base-builder AS fsl-builder
 
-RUN --mount=type=bind,source=build/packages/fsl-6.0.7.18-jammy.tar.gz,target=/tmp/packages/fsl-6.0.7.18-jammy.tar.gz \
+RUN --mount=type=bind,source=build/packages/fsl-6.0.7.23-jammy.tar.gz,target=/tmp/packages/fsl-6.0.7.23-jammy.tar.gz \
     --mount=type=bind,source=build/packages/msm_ubuntu_v3,target=/tmp/packages/msm_ubuntu_v3 \
     set -ex && \
     # FSL
-    tar -xf /tmp/packages/fsl-6.0.7.18-jammy.tar.gz -C /usr/local/ && \
-    # The FSL tarball carries the conda package cache (pkgs/, ~8.4 GB of
-    # duplicates of what is already installed under lib/ etc.) plus headers and
-    # the compiler sysroot that are only needed for building packages.
+    tar -xf /tmp/packages/fsl-6.0.7.23-jammy.tar.gz -C /usr/local/ && \
+    # Headers and the compiler sysroot are only needed for building packages.
+    # pkgs/ (the conda package cache) is normally not in the tarball; it is
+    # removed here as well in case a tarball made another way carries it.
     rm -rf /usr/local/fsl/pkgs /usr/local/fsl/include /usr/local/fsl/src \
            /usr/local/fsl/x86_64-conda-linux-gnu && \
     # The wrappers under share/fsl/bin call their Python interpreter by
@@ -173,7 +180,8 @@ FROM ubuntu:22.04
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive \
     TZ=Asia/Tokyo \
-    DISPLAY=:1
+    DISPLAY=:1 \
+    RESOLUTION=1920x1080x24
 
 # Part 0: Create the "brain" user first (uid/gid 1000), so that the later
 # COPY --chown steps can refer to it and no recursive chown is needed.
@@ -320,7 +328,14 @@ RUN set -ex && \
     chmod 600 /home/brain/.vnc/passwd && \
     chown brain:brain /home/brain/.profile && \
     chown -R brain:brain /home/brain/.vnc /home/brain/logs /home/brain/.dbus && \
-    chmod 1777 /tmp
+    chmod 1777 /tmp && \
+    # Git settings for repositories on the bind-mounted share folder (same as
+    # docker-abis-2027). Docker Desktop can present a Windows/macOS folder as
+    # root-owned with synthetic 0777 modes; git then stops with "detected
+    # dubious ownership" and reports every file as mode-changed. /etc/gitconfig
+    # applies to brain and root alike.
+    git config --system --add safe.directory '*' && \
+    git config --system core.fileMode false
 
 # Expose port for noVNC
 EXPOSE 6080

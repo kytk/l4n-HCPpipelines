@@ -14,6 +14,8 @@ echo "Display: $DISPLAY"
 export HOME=/home/brain
 export USER=brain
 export DISPLAY=:1
+# Set by startup.sh; the default covers a direct start of this script
+export RESOLUTION=${RESOLUTION:-1920x1080x24}
 
 # Create necessary directories
 mkdir -p /home/brain/.vnc

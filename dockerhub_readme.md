@@ -14,7 +14,7 @@ Lin4Neuro is a customized Ubuntu-based Linux distribution for neuroimaging analy
 - **Pre-installed Neuroimaging Software**:
   - HCP Pipelines v6.0.0
   - FreeSurfer 6.0.1
-  - FSL 6.0.7.18
+  - FSL 6.0.7.23
   - Connectome Workbench
   - MSM (Multimodal Surface Matching) v3.0
   - MATLAB Runtime R2022b
@@ -33,57 +33,49 @@ Lin4Neuro is a customized Ubuntu-based Linux distribution for neuroimaging analy
 
 #### Basic Usage (GUI Mode)
 
-**Linux/macOS:**
+The same command works on Linux, macOS and Windows:
 ```bash
 # Place your FreeSurfer license.txt in the current directory
 docker run \
   --shm-size=4g \
   --platform linux/amd64 \
   --name l4n-hcp \
-  -d -p 6080:6080 \
+  -d -p 127.0.0.1:6080:6080 \
   -v .:/home/brain/share \
   kytk/l4n-hcppipelines:latest
 ```
 
-**Windows (--privileged is needed):**
-```bash
-docker run \
-  --shm-size=4g \
-  --privileged \
-  --platform linux/amd64 \
-  --name l4n-hcp \
-  -d -p 6080:6080 \
-  -v .:/home/brain/share \
-  kytk/l4n-hcppipelines:latest
-```
+- `-p 127.0.0.1:6080:6080` makes the desktop reachable only from your own computer (the VNC password is public).
+- `--privileged` is not needed on any platform.
+
+#### Shared Folder Format (Windows)
+On Windows, the shared folder must be on an **NTFS** drive. exFAT and FAT32 cannot store Linux file ownership, so the `brain` user inside the container cannot write to the folder. If your external drive is exFAT, back up its contents and reformat it as NTFS. On macOS, exFAT drives work as they are.
 
 #### Interactive Shell Mode
 ```bash
 docker run -it \
   --shm-size=4g \
-  --privileged \
   --platform linux/amd64 \
   -v .:/home/brain/share \
-  -e MODE=bash \
   --name l4n-hcp \
   kytk/l4n-hcppipelines:latest
 ```
 
 #### Access the Desktop
 1. Open your web browser
-2. Navigate to `http://localhost:6080/vnc.html`
+2. Navigate to `http://127.0.0.1:6080/vnc.html`
 3. Enter password: `lin4neuro`
 
 ### Environment Modes
 
 #### GUI Mode (Default)
 - Starts XFCE4 desktop environment
-- Accessible via web browser at `http://localhost:6080/vnc.html`
+- Accessible via web browser at `http://127.0.0.1:6080/vnc.html`
 - Password: `lin4neuro`
 
 #### Bash Mode
 - Provides interactive command-line access
-- Use `-e MODE=bash` flag
+- Start the container with `-it` instead of `-d` (no `-p` needed): a shell as `brain` opens instead of the desktop
 - All neuroimaging tools available in PATH
 - HCP Pipelines and all dependencies are pre-configured
 
@@ -126,16 +118,15 @@ You can specify a custom resolution when starting the container by setting the `
 ```bash
 docker run \
   --shm-size=4g \
-  --privileged \
   --platform linux/amd64 \
   --name l4n-hcp \
-  -d -p 6080:6080 \
-  -e RESOLUTION=1920x1080x24 \
+  -d -p 127.0.0.1:6080:6080 \
+  -e RESOLUTION=1600x900x24 \
   -v .:/home/brain/share \
   kytk/l4n-hcppipelines:latest
 ```
 
-Default resolution: 1600x900x24
+Default resolution: 1920x1080x24. The value must be `WIDTHxHEIGHTxDEPTH` (depth 8, 16, 24 or 32); anything else falls back to the default (see `docker logs`).
 
 ### Port Mapping
 - Port `6080`: noVNC web interface
@@ -155,15 +146,12 @@ Default resolution: 1600x900x24
 
 ### Example Commands
 
-**Note:** The following examples include `--privileged` flag for Windows compatibility. On Linux/macOS, you can omit this flag.
-
 #### Run with data mount
 ```bash
 docker run \
   --shm-size=4g \
-  --privileged \
   --platform linux/amd64 \
-  -d -p 6080:6080 \
+  -d -p 127.0.0.1:6080:6080 \
   -v .:/home/brain/share \
   -v /path/to/neuroimaging/data:/home/brain/data \
   --name l4n-hcp \
@@ -174,23 +162,19 @@ docker run \
 ```bash
 docker run -it \
   --shm-size=4g \
-  --privileged \
   --platform linux/amd64 \
   -v .:/home/brain/share \
-  -e MODE=bash \
   --name l4n-hcp \
-  kytk/l4n-hcppipelines:latest \
-  /bin/bash
+  kytk/l4n-hcppipelines:latest
 ```
 
 #### With custom resolution and memory limit
 ```bash
 docker run \
   --shm-size=4g \
-  --privileged \
   --platform linux/amd64 \
-  -d -p 6080:6080 \
-  -e RESOLUTION=1920x1080x24 \
+  -d -p 127.0.0.1:6080:6080 \
+  -e RESOLUTION=1600x900x24 \
   -v .:/home/brain/share \
   -m 8g \
   --name l4n-hcp \
@@ -232,7 +216,7 @@ Lin4Neuro は、ニューロイメージング解析用にカスタマイズさ�
 - **事前インストール済み神経画像解析ソフトウェア**:
   - HCP Pipelines v6.0.0
   - FreeSurfer 6.0.1
-  - FSL 6.0.7.18
+  - FSL 6.0.7.23
   - Connectome Workbench
   - MSM (Multimodal Surface Matching) v3.0
   - MATLAB Runtime R2022b
@@ -251,57 +235,49 @@ Lin4Neuro は、ニューロイメージング解析用にカスタマイズさ�
 
 #### 基本使用方法（GUIモード）
 
-**Linux, macOS:**
+Linux、macOS、Windows のいずれも同じコマンドで起動できます:
 ```bash
 # FreeSurferのlicense.txtを現在のディレクトリに配置
 docker run \
   --shm-size=4g \
   --platform linux/amd64 \
   --name l4n-hcp \
-  -d -p 6080:6080 \
+  -d -p 127.0.0.1:6080:6080 \
   -v .:/home/brain/share \
   kytk/l4n-hcppipelines:latest
 ```
 
-**Windows (--privileged が必要):**
-```bash
-docker run \
-  --shm-size=4g \
-  --privileged \
-  --platform linux/amd64 \
-  --name l4n-hcp \
-  -d -p 6080:6080 \
-  -v .:/home/brain/share \
-  kytk/l4n-hcppipelines:latest
-```
+- `-p 127.0.0.1:6080:6080` とすることで、デスクトップには自分のコンピュータからのみ接続できます（VNC のパスワードは公開されているため）。
+- どの OS でも `--privileged` は不要です。
+
+#### 共有フォルダの形式（Windows）
+Windows では、共有フォルダは **NTFS** 形式のドライブに置いてください。exFAT や FAT32 は Linux のファイル所有者情報を保存できないため、コンテナ内の `brain` ユーザーが共有フォルダに書き込めません。外付けドライブが exFAT の場合は、中身をバックアップしてから NTFS で再フォーマットしてください。macOS では exFAT のドライブもそのまま使えます。
 
 #### 対話型シェルモード
 ```bash
 docker run -it \
   --shm-size=4g \
-  --privileged \
   --platform linux/amd64 \
   -v .:/home/brain/share \
-  -e MODE=bash \
   --name l4n-hcp \
   kytk/l4n-hcppipelines:latest
 ```
 
 #### デスクトップへのアクセス
 1. Webブラウザを開く
-2. `http://localhost:6080/vnc.html` にアクセス
+2. `http://127.0.0.1:6080/vnc.html` にアクセス
 3. パスワードを入力: `lin4neuro`
 
 ### 環境モード
 
 #### GUIモード（デフォルト）
 - XFCE4デスクトップ環境を開始
-- Webブラウザから `http://localhost:6080/vnc.html` でアクセス
+- Webブラウザから `http://127.0.0.1:6080/vnc.html` でアクセス
 - パスワード: `lin4neuro`
 
 #### Bashモード
 - 対話型コマンドラインアクセスを提供
-- `-e MODE=bash` フラグを使用
+- `-d` の代わりに `-it` を付けて起動します（`-p` は不要）。デスクトップの代わりに `brain` ユーザーのシェルが開きます
 - すべての神経画像解析ツールがPATHで利用可能
 - HCP Pipelines とすべての依存関係が事前設定済み
 
@@ -344,16 +320,15 @@ sudo cp /home/brain/share/license.txt /usr/local/freesurfer/6.0.1/
 ```bash
 docker run \
   --shm-size=4g \
-  --privileged \
   --platform linux/amd64 \
   --name l4n-hcp \
-  -d -p 6080:6080 \
-  -e RESOLUTION=1920x1080x24 \
+  -d -p 127.0.0.1:6080:6080 \
+  -e RESOLUTION=1600x900x24 \
   -v .:/home/brain/share \
   kytk/l4n-hcppipelines:latest
 ```
 
-デフォルト解像度: 1600x900x24
+デフォルト解像度: 1920x1080x24。値は `幅x高さx色深度`（色深度は 8, 16, 24, 32 のいずれか）の形式で指定してください。それ以外の値の場合はデフォルトが使われます（`docker logs` で確認できます）。
 
 ### ポートマッピング
 - ポート `6080`: noVNC Webインターフェース
@@ -373,15 +348,12 @@ docker run \
 
 ### コマンド例
 
-**注意:** 以下の例では Windows 互換性のために `--privileged` フラグを含めています。Linux/macOS ではこのフラグを省略できます。
-
 #### データマウントありで実行
 ```bash
 docker run \
   --shm-size=4g \
-  --privileged \
   --platform linux/amd64 \
-  -d -p 6080:6080 \
+  -d -p 127.0.0.1:6080:6080 \
   -v .:/home/brain/share \
   -v /path/to/neuroimaging/data:/home/brain/data \
   --name l4n-hcp \
@@ -392,23 +364,19 @@ docker run \
 ```bash
 docker run -it \
   --shm-size=4g \
-  --privileged \
   --platform linux/amd64 \
   -v .:/home/brain/share \
-  -e MODE=bash \
   --name l4n-hcp \
-  kytk/l4n-hcppipelines:latest \
-  /bin/bash
+  kytk/l4n-hcppipelines:latest
 ```
 
 #### カスタム解像度とメモリ制限あり
 ```bash
 docker run \
   --shm-size=4g \
-  --privileged \
   --platform linux/amd64 \
-  -d -p 6080:6080 \
-  -e RESOLUTION=1920x1080x24 \
+  -d -p 127.0.0.1:6080:6080 \
+  -e RESOLUTION=1600x900x24 \
   -v .:/home/brain/share \
   -m 8g \
   --name l4n-hcp \
@@ -444,9 +412,10 @@ docker rm -f l4n-hcp
 
 ### System Requirements
 - RAM: 8GB minimum, 16GB+ recommended (for HCP Pipeline processing)
-- Disk space: ~20GB for container image
+- Disk space: ~31GB for container image
 - Supported platforms: Linux (x86_64), macOS (x86_64), Windows with WSL2
-- Docker flags required: `--shm-size=4g --platform linux/amd64` (add `--privileged` for Windows)
+- Docker flags required: `--shm-size=4g --platform linux/amd64` (no `--privileged` needed)
+- Shared folder on Windows: NTFS drive required (exFAT/FAT32 cannot store Linux file ownership)
 
 ### Container Details
 - Base image: Ubuntu 22.04 LTS
@@ -454,13 +423,13 @@ docker rm -f l4n-hcp
 - VNC server: x11vnc
 - Web interface: noVNC
 - Default user: brain (non-root)
-- Default resolution: 1600x900x24 (customizable via RESOLUTION environment variable)
+- Default resolution: 1920x1080x24 (customizable via RESOLUTION environment variable)
 
 ### Included Software Versions
 - HCP Pipelines: v6.0.0
 - FreeSurfer: 6.0.1
-- FSL: 6.0.7.18
-- Connectome Workbench: Latest
+- FSL: 6.0.7.23
+- Connectome Workbench: 2.1.0
 - MSM: v3.0
 - MATLAB Runtime: R2022b
 
@@ -479,5 +448,6 @@ This container includes multiple software packages, each with its own license. U
 - Issues: https://github.com/kytk/l4n-HCPpipelines/issues
 
 ### Version History
+- 2026-09-27: HCP Pipelines v6.0.0 (FreeSurfer 6.0.1 kept), FSL 6.0.7.23, Python 3.12 venv (`/opt/venv`), MATLAB steps use the compiled runtime (MatlabMode=0), smaller image. The shared folder is always `/home/brain/share` (NTFS on Windows); `--privileged` is no longer needed.
 - 2026-01-04: modify scripts so that data can be saved outside containers.
 - 2025-12-25: Initial release with HCP Pipelines v5.0.0 and complete neuroimaging analysis environment

@@ -12,7 +12,7 @@ Lin4Neuro is a customized Ubuntu-based Linux distribution for neuroimaging analy
 
 - **HCP Pipelines** v6.0.0
 - **FreeSurfer** 6.0.1
-- **FSL** 6.0.7.18
+- **FSL** 6.0.7.23
 - **Connectome Workbench**
 - **MSM** (Multimodal Surface Matching) v3.0
 - **MATLAB Runtime** R2022b
@@ -37,37 +37,26 @@ cd /path/to/your/shared/directory
 
 3. Run the following command to start the container:
 
-- Linux/macOS
+The same command works on Linux, macOS and Windows (`--privileged` is not needed):
 
 ```bash
 docker run \
   --shm-size=4g \
   --platform linux/amd64 \
   --name l4n-hcp \
-  -d -p 6080:6080 \
+  -d -p 127.0.0.1:6080:6080 \
   -v .:/home/brain/share \
   kytk/l4n-hcppipelines:latest
 ```
 
-- Windows (--privileged is needed)
-
-```bash
-docker run \
-  --shm-size=4g \
-  --privileged \
-  --platform linux/amd64 \
-  --name l4n-hcp \
-  -d -p 6080:6080 \
-  -v .:/home/brain/share \
-  kytk/l4n-hcppipelines:latest
-```
+**Windows:** put the shared folder on an **NTFS** drive. exFAT and FAT32 cannot store Linux file ownership, so the `brain` user inside the container cannot write to it. On macOS, exFAT drives work as they are.
 
 ### Accessing the Desktop Environment
 
 Open your web browser and navigate to:
 
 ```
-http://localhost:6080/vnc.html
+http://127.0.0.1:6080/vnc.html
 ```
 
 You will see the Lin4Neuro desktop environment with XFCE4.
@@ -102,16 +91,15 @@ You can specify a custom resolution when starting the container by setting the `
 ```bash
 docker run \
   --shm-size=4g \
-  --privileged \
   --platform linux/amd64 \
   --name l4n-hcp \
-  -d -p 6080:6080 \
-  -e RESOLUTION=1920x1080x24 \
+  -d -p 127.0.0.1:6080:6080 \
+  -e RESOLUTION=1600x900x24 \
   -v .:/home/brain/share \
   kytk/l4n-hcppipelines:latest
 ```
 
-Default resolution: 1600x900x24
+Default resolution: 1920x1080x24. The value must be `WIDTHxHEIGHTxDEPTH` (depth 8, 16, 24 or 32); anything else falls back to the default (see `docker logs`).
 
 ### Container Management
 
@@ -154,7 +142,7 @@ Lin4Neuro は、ニューロイメージング解析用にカスタマイズさ�
 
 - **HCP Pipelines** v6.0.0
 - **FreeSurfer** 6.0.1
-- **FSL** 6.0.7.18
+- **FSL** 6.0.7.23
 - **Connectome Workbench**
 - **MSM** (Multimodal Surface Matching) v3.0
 - **MATLAB Runtime** R2022b
@@ -179,37 +167,26 @@ cd 共有ディレクトリのパス
 
 3. 以下のコマンドでコンテナを起動します：
 
-- Linux, macOS
+Linux、macOS、Windows のいずれも同じコマンドで起動できます（`--privileged` は不要です）：
 
 ```bash
 docker run \
   --shm-size=4g \
   --platform linux/amd64 \
   --name l4n-hcp \
-  -d -p 6080:6080 \
+  -d -p 127.0.0.1:6080:6080 \
   -v .:/home/brain/share \
   kytk/l4n-hcppipelines:latest
 ```
 
-- Windows
-
-```bash
-docker run \
-  --shm-size=4g \
-  --privileged \
-  --platform linux/amd64 \
-  --name l4n-hcp \
-  -d -p 6080:6080 \
-  -v .:/home/brain/share \
-  kytk/l4n-hcppipelines:latest
-```
+**Windows:** 共有フォルダは **NTFS** 形式のドライブに置いてください。exFAT や FAT32 は Linux のファイル所有者情報を保存できないため、コンテナ内の `brain` ユーザーが書き込めません。macOS では exFAT のドライブもそのまま使えます。
 
 ### デスクトップ環境へのアクセス
 
 Web ブラウザで以下の URL にアクセスしてください：
 
 ```
-http://localhost:6080/vnc.html
+http://127.0.0.1:6080/vnc.html
 ```
 
 XFCE4 デスクトップ環境の Lin4Neuro が表示されます。
@@ -245,16 +222,15 @@ sudo cp /home/brain/share/license.txt /usr/local/freesurfer/6.0.1/
 ```bash
 docker run \
   --shm-size=4g \
-  --privileged \
   --platform linux/amd64 \
   --name l4n-hcp \
-  -d -p 6080:6080 \
-  -e RESOLUTION=1920x1080x24 \
+  -d -p 127.0.0.1:6080:6080 \
+  -e RESOLUTION=1600x900x24 \
   -v .:/home/brain/share \
   kytk/l4n-hcppipelines:latest
 ```
 
-デフォルト解像度: 1600x900x24
+デフォルト解像度: 1920x1080x24。値は `幅x高さx色深度`（色深度は 8, 16, 24, 32 のいずれか）の形式で指定してください。それ以外の値の場合はデフォルトが使われます（`docker logs` で確認できます）。
 
 ### コンテナ管理
 
