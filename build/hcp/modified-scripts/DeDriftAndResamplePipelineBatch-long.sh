@@ -4,7 +4,6 @@ get_batch_options() {
     local arguments=("$@")
 
     command_line_specified_study_folder=""
-    command_line_specified_subj=""
     command_line_specified_run_local="FALSE"
 
     local index=0
@@ -17,10 +16,6 @@ get_batch_options() {
         case "$argument" in
             --StudyFolder=*)
                 command_line_specified_study_folder=${argument#*=}
-                index=$(( index + 1 ))
-                ;;
-            --Subjlist=*)
-                command_line_specified_subj=${argument#*=}
                 index=$(( index + 1 ))
                 ;;
             --runlocal)
@@ -112,7 +107,7 @@ dontFixNames=()
 SmoothingFWHM="2" #Should equal previous grayordinates smoothing (because we are resampling from unsmoothed native mesh timeseries)
 HighPass="0"
 MotionRegression=FALSE
-MatlabMode="1" #Mode=0 compiled Matlab, Mode=1 interpreted Matlab, Mode=2 octave
+MatlabMode="0" #Mode=0 compiled Matlab, Mode=1 interpreted Matlab, Mode=2 octave
 
 #Example of how older HCP-YA results were originally run
 #These settings are no longer recommended - recommendations are to do MR FIX using all of a subject's runs, in the order they were acquired, no motion regression, HighPass 0
@@ -141,10 +136,6 @@ if [ -n "${command_line_specified_study_folder}" ]; then
     StudyFolder="${command_line_specified_study_folder}"
 fi
 
-if [ -n "${command_line_specified_subj}" ]; then
-    Subjlist="${command_line_specified_subj}"
-fi
-
 # Log the originating call
 echo "$0" "$@"
 
@@ -161,7 +152,8 @@ MRFixNames=$(IFS=@; echo "${MRFixNames[*]}")
 fixNames=$(IFS=@; echo "${fixNames[*]}")
 dontFixNames=$(IFS=@; echo "${dontFixNames[*]}")
 
-for Subject in "${Subjlist[@]}" ; do
+for i in "${!Subjlist[@]}" ; do
+    Subject="${Subjlist[i]}"
     echo "    ${Subject}"
     TemplateLong="${Templates[i]}"
     Timepoint_list_cross_at_separated=$(identify_timepoints "$Subject")

@@ -185,7 +185,7 @@ main() {
 	# 0 = Use compiled MATLAB
 	# 1 = Use interpreted MATLAB
 	# 2 = Use interpreted Octave
-	MatlabMode=1
+	MatlabMode=0
 
 	# motion regression or not
 	MotionReg=FALSE

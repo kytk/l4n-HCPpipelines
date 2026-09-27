@@ -52,7 +52,7 @@ GMWMTemplate="/group-directory/MNINonLinear/GMWMTemplate.nii.gz"
 #all modes
 RegName=MSMAll
 mode="PseudoTransmit"
-MatlabMode=1
+MatlabMode=0
 
 #PseudoTransmit-specific settings
 fMRINames=rfMRI_REST1_AP@rfMRI_REST1_PA
@@ -95,5 +95,5 @@ for (( i=0; i<${#Subjlist[@]}; i++ )); do
         --myelin-template="$ReferenceTemplate" \
         --group-uncorrected-myelin="$GroupUncorrectedMyelin" \
         --pt-reference-value-file="$PTRefValFile" \
-        --matlab-mode="$MatlabMode"
+        --matlab-run-mode="$MatlabMode"
 done

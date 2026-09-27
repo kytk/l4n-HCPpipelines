@@ -137,7 +137,7 @@ RegName="MSMAll_InitialReg"
 HighResMesh="164"
 LowResMesh="32"
 InRegName="MSMSulc"
-MatlabMode="1" #Mode=0 compiled Matlab, Mode=1 interpreted Matlab, Mode=2 Octave
+MatlabMode="0" #Mode=0 compiled Matlab, Mode=1 interpreted Matlab, Mode=2 Octave
 
 fMRINames=`echo ${fMRINames} | sed 's/ /@/g'`
 

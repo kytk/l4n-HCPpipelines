@@ -12,7 +12,7 @@ Lin4Neuro is a customized Ubuntu-based Linux distribution for neuroimaging analy
 ### Features
 - **Complete Desktop Environment**: XFCE4 desktop with web browser access
 - **Pre-installed Neuroimaging Software**:
-  - HCP Pipelines v5.1.0
+  - HCP Pipelines v6.0.0
   - FreeSurfer 6.0.1
   - FSL 6.0.7.18
   - Connectome Workbench
@@ -20,8 +20,8 @@ Lin4Neuro is a customized Ubuntu-based Linux distribution for neuroimaging analy
   - MATLAB Runtime R2022b
   - MRIcroGL
   - dcm2niix
-- **Development Tools**: Python 3, Jupyter Notebook, Git
-- **Python Packages**: numpy, pandas, matplotlib, seaborn, nibabel, nipype, and more
+- **Development Tools**: Python 3.12 (venv at `/opt/venv`), Jupyter Notebook, Git
+- **Python Packages**: numpy, pandas, matplotlib, seaborn, nibabel, nipype, pcntoolkit, and more
 - **Multi-language Support**: English and Japanese fonts/locales
 
 ### Quick Start
@@ -230,7 +230,7 @@ Lin4Neuro は、ニューロイメージング解析用にカスタマイズさ�
 ### 特徴
 - **完全なデスクトップ環境**: WebブラウザアクセスでXFCE4デスクトップ
 - **事前インストール済み神経画像解析ソフトウェア**:
-  - HCP Pipelines v5.1.0
+  - HCP Pipelines v6.0.0
   - FreeSurfer 6.0.1
   - FSL 6.0.7.18
   - Connectome Workbench
@@ -238,8 +238,8 @@ Lin4Neuro は、ニューロイメージング解析用にカスタマイズさ�
   - MATLAB Runtime R2022b
   - MRIcroGL
   - dcm2niix
-- **開発ツール**: Python 3, Jupyter Notebook, Git
-- **Python パッケージ**: numpy, pandas, matplotlib, seaborn, nibabel, nipype など
+- **開発ツール**: Python 3.12 (venv: `/opt/venv`), Jupyter Notebook, Git
+- **Python パッケージ**: numpy, pandas, matplotlib, seaborn, nibabel, nipype, pcntoolkit など
 - **多言語サポート**: 英語・日本語フォント/ロケール
 
 ### クイックスタート
@@ -457,7 +457,7 @@ docker rm -f l4n-hcp
 - Default resolution: 1600x900x24 (customizable via RESOLUTION environment variable)
 
 ### Included Software Versions
-- HCP Pipelines: v5.1.0
+- HCP Pipelines: v6.0.0
 - FreeSurfer: 6.0.1
 - FSL: 6.0.7.18
 - Connectome Workbench: Latest

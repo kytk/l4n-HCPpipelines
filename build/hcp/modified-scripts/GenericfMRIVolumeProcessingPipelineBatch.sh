@@ -288,7 +288,8 @@ for Subject in $Subjlist ; do
             --gdcoeffs="$GradientDistortionCoeffs" \
             --topupconfig="$TopUpConfig" \
             --biascorrection="$BiasCorrection" \
-            --mctype="$MCType"
+            --mctype="$MCType" \
+            --matlab-run-mode=0
 
         # The following lines are used for interactive debugging to set the positional parameters: $1 $2 $3 ...
 

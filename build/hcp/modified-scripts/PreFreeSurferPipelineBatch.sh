@@ -514,7 +514,7 @@ main()
 			--unwarpdir="$UnwarpDir" \
 			--gdcoeffs="$GradientDistortionCoeffs" \
 			--avgrdcmethod="$AvgrdcSTRING" \
-			--topupconfig="$TopupConfig"
+			--topupconfig="$TopupConfig" 
 
 	done
 }

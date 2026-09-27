@@ -10,7 +10,7 @@ Lin4Neuro is a customized Ubuntu-based Linux distribution for neuroimaging analy
 
 ### Included Software
 
-- **HCP Pipelines** v5.1.0
+- **HCP Pipelines** v6.0.0
 - **FreeSurfer** 6.0.1
 - **FSL** 6.0.7.18
 - **Connectome Workbench**
@@ -18,7 +18,7 @@ Lin4Neuro is a customized Ubuntu-based Linux distribution for neuroimaging analy
 - **MATLAB Runtime** R2022b
 - **MRIcroGL**
 - **dcm2niix**
-- Python packages: numpy, pandas, matplotlib, seaborn, jupyter, nibabel, nipype, and more
+- Python 3.12 (venv at `/opt/venv`) with numpy, pandas, matplotlib, seaborn, jupyter, nibabel, nipype, pcntoolkit, and more
 
 ### Prerequisites
 
@@ -152,7 +152,7 @@ Lin4Neuro は、ニューロイメージング解析用にカスタマイズさ�
 
 ### 含まれるソフトウェア
 
-- **HCP Pipelines** v5.1.0
+- **HCP Pipelines** v6.0.0
 - **FreeSurfer** 6.0.1
 - **FSL** 6.0.7.18
 - **Connectome Workbench**
@@ -160,7 +160,7 @@ Lin4Neuro は、ニューロイメージング解析用にカスタマイズさ�
 - **MATLAB Runtime** R2022b
 - **MRIcroGL**
 - **dcm2niix**
-- Python パッケージ: numpy, pandas, matplotlib, seaborn, jupyter, nibabel, nipype など
+- Python 3.12 (venv: `/opt/venv`)。numpy, pandas, matplotlib, seaborn, jupyter, nibabel, nipype, pcntoolkit など
 
 ### 事前準備
 

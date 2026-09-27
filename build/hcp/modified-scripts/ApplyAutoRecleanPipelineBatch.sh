@@ -127,20 +127,29 @@ main() {
 	FinalfMRIResolution="2"
 
 	#run in singularity
-	PythonSingularity="/path/to/singularity.img"
-	PythonSingularityMountPath="/path/to/data" # where the data dir need to mount to the singularity
-	PythonInterpreter=""
+	#PythonSingularity="/path/to/singularity.img"
+	#PythonSingularityMountPath="/path/to/data" # where the data dir need to mount to the singularity
+	#PythonInterpreter=""
 
 	#run in conda
 	#PythonSingularity=""
 	#PythonSingularityMountPath=""
 	#PythonInterpreter="/my/conda/path/envs/hcp_python_env/bin/python3"
 
+	#run in the container's Python venv (l4n-HCPpipelines)
+	PythonSingularity=""
+	PythonSingularityMountPath=""
+	PythonInterpreter="/opt/venv/bin/python3"
+
 	# models to use
-	Models="RandomForest@MLP@Xgboost@WeightedKNN@XgboostEnsemble"
+	#Models="RandomForest@MLP@Xgboost@WeightedKNN@XgboostEnsemble"
+	# WeightedKNN is dropped: HCPpipelines ships no WeightedKNN model file
+	# (ICAFIX/rclean_models has none, neither .joblib nor .onnx)
+	Models="RandomForest@MLP@Xgboost@XgboostEnsemble"
 
 	# set threshold
-	VoteThresh="5" # the number stands for how many votes to finalze the classification, if there are 5 models, then vote threshold 5 means only reclassify when the 5 models all agree on the prediction
+	#VoteThresh="5" # the number stands for how many votes to finalze the classification, if there are 5 models, then vote threshold 5 means only reclassify when the 5 models all agree on the prediction
+	VoteThresh="4" # all 4 models must agree (same rule as 5 of 5 above)
 
 	#NOTE: syntax for QUEUE has changed compared to earlier pipeline releases,
 	#DO NOT include "-q " at the beginning
@@ -173,7 +182,8 @@ main() {
 		--python-singularity-mount-path="$PythonSingularityMountPath" \
 		--python-interpreter="$PythonInterpreter" \
 		--model-to-use="$Models" \
-		--vote-threshold="$VoteThresh"
+		--vote-threshold="$VoteThresh" \
+		--matlab-run-mode=0
 
 	done
 }  # main()

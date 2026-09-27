@@ -38,6 +38,9 @@ export FSLDIR PATH
 . ${FSLDIR}/etc/fslconf/fsl.sh
 
 # Python3
-export PATH=/usr/bin/:$PATH
+# /usr/bin comes before the FSL conda bin/ that SetUpFreeSurfer.sh adds (it
+# ships its own python3, curl, ...), and /opt/venv/bin (Python 3.12 venv,
+# the image's single Python environment) comes before everything.
+export PATH=/opt/venv/bin:/usr/bin/:$PATH
 
 

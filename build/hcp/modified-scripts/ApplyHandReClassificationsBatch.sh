@@ -81,7 +81,7 @@ fMRINames="rfMRI_REST"
 
 HighPass="0"
 
-MatlabMode="1" #Mode=0 compiled Matlab, Mode=1 interpreted Matlab, Mode=2 octave
+MatlabMode="0" #Mode=0 compiled Matlab, Mode=1 interpreted Matlab, Mode=2 octave
 
 for Subject in $Subjlist ; do
     for fMRIName in ${fMRINames} ; do
