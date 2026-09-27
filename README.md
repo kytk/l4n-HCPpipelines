@@ -10,7 +10,7 @@ Lin4Neuro is a customized Ubuntu-based Linux distribution for neuroimaging analy
 
 ### Included Software
 
-- **HCP Pipelines** v5.0.0
+- **HCP Pipelines** v5.1.0
 - **FreeSurfer** 6.0.1
 - **FSL** 6.0.7.18
 - **Connectome Workbench**
@@ -152,7 +152,7 @@ Lin4Neuro は、ニューロイメージング解析用にカスタマイズさ�
 
 ### 含まれるソフトウェア
 
-- **HCP Pipelines** v5.0.0
+- **HCP Pipelines** v5.1.0
 - **FreeSurfer** 6.0.1
 - **FSL** 6.0.7.18
 - **Connectome Workbench**

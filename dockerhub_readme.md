@@ -12,7 +12,7 @@ Lin4Neuro is a customized Ubuntu-based Linux distribution for neuroimaging analy
 ### Features
 - **Complete Desktop Environment**: XFCE4 desktop with web browser access
 - **Pre-installed Neuroimaging Software**:
-  - HCP Pipelines v5.0.0
+  - HCP Pipelines v5.1.0
   - FreeSurfer 6.0.1
   - FSL 6.0.7.18
   - Connectome Workbench
@@ -146,12 +146,12 @@ Default resolution: 1600x900x24
 - Home directory: `/home/brain`
 
 ### Software Paths and Environment Variables
-- **HCP Pipelines**: `/opt/HCP-Pipelines` (HCPPIPEDIR set)
+- **HCP Pipelines**: `/home/brain/projects/HCPpipelines` (HCPPIPEDIR set in `Examples/Scripts/SetUpHCPPipeline.sh`)
 - **FreeSurfer**: `/usr/local/freesurfer/6.0.1` (automatically configured)
 - **FSL**: `/usr/local/fsl` (FSLDIR set)
 - **Connectome Workbench**: Available in PATH
 - **MSM**: Available in PATH
-- **MATLAB Runtime**: `/usr/local/MATLAB/MATLAB_Runtime/R2022b`
+- **MATLAB Runtime**: `/usr/local/MATLAB/MCR/R2022b`
 
 ### Example Commands
 
@@ -230,7 +230,7 @@ Lin4Neuro は、ニューロイメージング解析用にカスタマイズさ�
 ### 特徴
 - **完全なデスクトップ環境**: WebブラウザアクセスでXFCE4デスクトップ
 - **事前インストール済み神経画像解析ソフトウェア**:
-  - HCP Pipelines v5.0.0
+  - HCP Pipelines v5.1.0
   - FreeSurfer 6.0.1
   - FSL 6.0.7.18
   - Connectome Workbench
@@ -364,12 +364,12 @@ docker run \
 - ホームディレクトリ: `/home/brain`
 
 ### ソフトウェアパスと環境変数
-- **HCP Pipelines**: `/opt/HCP-Pipelines` (HCPPIPEDIR設定済み)
+- **HCP Pipelines**: `/home/brain/projects/HCPpipelines` (HCPPIPEDIR は `Examples/Scripts/SetUpHCPPipeline.sh` で設定)
 - **FreeSurfer**: `/usr/local/freesurfer/6.0.1` (自動設定)
 - **FSL**: `/usr/local/fsl` (FSLDIR設定済み)
 - **Connectome Workbench**: PATH利用可能
 - **MSM**: PATH利用可能
-- **MATLAB Runtime**: `/usr/local/MATLAB/MATLAB_Runtime/R2022b`
+- **MATLAB Runtime**: `/usr/local/MATLAB/MCR/R2022b`
 
 ### コマンド例
 
@@ -457,7 +457,7 @@ docker rm -f l4n-hcp
 - Default resolution: 1600x900x24 (customizable via RESOLUTION environment variable)
 
 ### Included Software Versions
-- HCP Pipelines: v5.0.0
+- HCP Pipelines: v5.1.0
 - FreeSurfer: 6.0.1
 - FSL: 6.0.7.18
 - Connectome Workbench: Latest

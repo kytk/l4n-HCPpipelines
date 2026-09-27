@@ -1,1 +1,9 @@
-packages/
+# Build inputs that are too large for git (tarballs, installers, .deb)
+build/packages/*
+
+# Build artefacts
+build.log
+
+# Local working notes
+CLAUDE.md
+LOG.md

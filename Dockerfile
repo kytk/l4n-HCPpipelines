@@ -2,10 +2,11 @@
 
 # Dockerfile for kytk/l4n-HCPpipeline with Multi-Stage Build
 # Author: K. Nemoto
-# Date: 09 Jan 2026
+# Date: 27 Sep 2026
 # Description: This Dockerfile uses a multi-stage build to create a smaller,
 #              optimized container image for neuroimaging analysis.
 
+# Ver.260109
 
 #------------------------------------------------------------------------------
 # Stage 1: The "Builder" Stage
@@ -28,10 +29,10 @@ RUN apt-get update && \
       zlib1g-dev 
 
 # Copy packaged software into the builder stage
-#COPY packages/* /tmp/
+#COPY build/packages/* /tmp/
 
 # Install all neuroimaging software
-RUN --mount=type=bind,source=packages,target=/tmp/packages \
+RUN --mount=type=bind,source=build/packages,target=/tmp/packages \
     set -ex && \
     # MRIcroGL
     unzip /tmp/packages/MRIcroGL_linux.zip -d /usr/local/ && \
@@ -39,7 +40,7 @@ RUN --mount=type=bind,source=packages,target=/tmp/packages \
     mkdir -p /usr/local/dcm2niix && \
     unzip /tmp/packages/dcm2niix_lnx.zip -d /usr/local/dcm2niix 
 
-RUN --mount=type=bind,source=packages,target=/tmp/packages \
+RUN --mount=type=bind,source=build/packages,target=/tmp/packages \
     set -ex && \
     # FreeSurfer 6.0.1
     ## install libpng12
@@ -56,7 +57,7 @@ RUN --mount=type=bind,source=packages,target=/tmp/packages \
     mkdir -p /home/brain/matlab && \
     ln -s /usr/local/freesurfer/6.0.1/subjects /home/brain/freesurfer/6.0.1/ 
 
-RUN --mount=type=bind,source=packages,target=/tmp/packages \
+RUN --mount=type=bind,source=build/packages,target=/tmp/packages \
     set -ex && \
     # Matlab MCR R2022b
     mkdir -p /tmp/mcr_r2022b && \
@@ -66,7 +67,7 @@ RUN --mount=type=bind,source=packages,target=/tmp/packages \
     ./install -mode silent -agreeToLicense yes -destinationFolder /usr/local/MATLAB/MCR/ && \
     rm -rf /tmp/mcr_r2022b
 
-RUN --mount=type=bind,source=packages,target=/tmp/packages \
+RUN --mount=type=bind,source=build/packages,target=/tmp/packages \
     set -ex && \
     # FSL
     tar -xf /tmp/packages/fsl-6.0.7.18-jammy.tar.gz -C /usr/local/ && \
@@ -79,12 +80,12 @@ RUN --mount=type=bind,source=packages,target=/tmp/packages \
     mv msm_ubuntu_v3 msm && \
     chmod 755 msm
 
-RUN --mount=type=bind,source=packages,target=/tmp/packages \
+RUN --mount=type=bind,source=build/packages,target=/tmp/packages \
     set -ex && \
     # Git Scripts
     mkdir -p /home/brain/git && \
     cd /home/brain/git && \
-    git clone https://github.com/Washington-University/HCPpipelines.git && \
+    git clone --branch v5.1.0 https://github.com/Washington-University/HCPpipelines.git && \
     mkdir -p /home/brain/projects && \
     cp -r HCPpipelines /home/brain/projects/ 
 
@@ -105,7 +106,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     DISPLAY=:1
 
 # Part 1: Install runtime dependencies
-RUN --mount=type=bind,source=packages,target=/tmp/packages \
+RUN --mount=type=bind,source=build/packages,target=/tmp/packages \
     set -ex && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -136,8 +137,6 @@ RUN --mount=type=bind,source=packages,target=/tmp/packages \
     apt-get install -y octave gnumeric && \
     cd /tmp/packages && \
     mkdir -p /home/brain/.config/xfce4/xfconf/xfce-perchannel-xml && \
-    # AlizaMS installation
-    apt install -y /tmp/packages/alizams_1.9.10+git0.95d7909-1+1.1_amd64.deb && \
     # Timezone setup
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone && \
@@ -146,7 +145,7 @@ RUN --mount=type=bind,source=packages,target=/tmp/packages \
     python3 -m pip install --upgrade pip && \
     pip install --no-cache-dir \
        numpy pandas matplotlib seaborn jupyter notebook gdcm \
-       pydicom heudiconv nipype nibabel threadpoolctl && \
+       pydicom heudiconv nipype nibabel threadpoolctl pcntoolkit && \
     # Firefox setup
     install -d -m 0755 /etc/apt/keyrings && \
     wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | \
@@ -184,7 +183,7 @@ COPY --from=builder /home/brain/matlab/ /home/brain/matlab/
 COPY --from=builder /home/brain/projects/ /home/brain/projects/
 
 # Copy modified scripts to override default ones
-COPY modified-scripts/* /home/brain/projects/HCPpipelines/Examples/Scripts/
+COPY build/hcp/modified-scripts/* /home/brain/projects/HCPpipelines/Examples/Scripts/
 
 # Part 2g: Workbench
 RUN set -ex && \
@@ -199,11 +198,11 @@ RUN set -ex && \
   apt-get install -y connectome-workbench
  
 # Part 3: User setup and configuration
-COPY deep_ocean.png /usr/share/backgrounds/
-COPY bash_aliases /etc/skel/.bash_aliases
-COPY bash_aliases /root/.bash_aliases
-COPY bash_aliases /home/brain/.bash_aliases
-COPY startup.m /home/brain/matlab/
+COPY build/desktop/deep_ocean.png /usr/share/backgrounds/
+COPY build/home/bash_aliases /etc/skel/.bash_aliases
+COPY build/home/bash_aliases /root/.bash_aliases
+COPY build/home/bash_aliases /home/brain/.bash_aliases
+COPY build/home/startup.m /home/brain/matlab/
 RUN rm -f /usr/share/backgrounds/xfce/xfce*.*p*g && \
     chmod 644 /root/.bash_aliases && \
     chmod 644 /etc/skel/.bash_aliases
@@ -281,12 +280,12 @@ RUN set -ex && \
     chown -R brain:brain /home/brain/.dbus
 
 # Copy configuration files
-COPY xfce4-desktop.xml /home/brain/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
-COPY xfce4-panel.xml /home/brain/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
-COPY terminalrc /home/brain/.config/xfce4/terminal/terminalrc
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-COPY startup.sh /usr/local/bin/startup.sh
+COPY build/desktop/xfce4-desktop.xml /home/brain/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
+COPY build/desktop/xfce4-panel.xml /home/brain/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+COPY build/desktop/terminalrc /home/brain/.config/xfce4/terminal/terminalrc
+COPY build/init/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY build/init/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY build/init/startup.sh /usr/local/bin/startup.sh
 
 # Set final permissions and ownership
 RUN chown brain:brain /home/brain/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml && \
