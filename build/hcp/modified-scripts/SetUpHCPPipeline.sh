@@ -24,7 +24,9 @@ export MSMBINDIR=/usr/local/fsl/bin
 export MATLAB_COMPILER_RUNTIME=/usr/local/MATLAB/MCR/R2022b
 # export FSL_FIXDIR=/usr/local/fix # only needed for legacy fix
 # If a suitable version of wb_command is on your $PATH, CARET7DIR can be blank
-export CARET7DIR=
+# l4n-HCPpipelines: set explicitly rather than letting the probe below find it,
+# so the pipelines cannot silently pick up a different wb_command.
+export CARET7DIR=/usr/local/workbench/bin_linux64
 export HCPCIFTIRWDIR="$HCPPIPEDIR"/global/matlab/cifti-matlab
 
 ## Set up FSL (if not already done so in the running environment)
@@ -101,9 +103,11 @@ else
     export PATH="$FSLDIR/bin:$PATH"
 fi
 export PATH="$CARET7DIR:$PATH"
-# l4n-HCPpipelines: wb_command is installed in /usr/bin, so the line above puts
-# /usr/bin (system Python 3.10 without the HCP packages) first in PATH. Keep the
-# container's Python venv first so that "python3" (CorrThick, reclean) finds it.
+# l4n-HCPpipelines: CARET7DIR used to be /usr/bin (the NeuroDebian package put
+# wb_command there), so the line above pushed the system Python 3.10 -- without
+# the HCP packages -- to the front of PATH. Workbench now lives in its own
+# directory, so that no longer happens, but keep the venv first anyway: FSL and
+# FreeSurfer both add directories that ship their own python3.
 export PATH="/opt/venv/bin:$PATH"
 
 # Source extra stuff that pipelines authors may need to edit, but users shouldn't ever need to

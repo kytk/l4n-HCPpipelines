@@ -15,11 +15,11 @@ Lin4Neuro is a customized Ubuntu-based Linux distribution for neuroimaging analy
   - HCP Pipelines v6.0.0
   - FreeSurfer 6.0.1
   - FSL 6.0.7.23
-  - Connectome Workbench
+  - Connectome Workbench 2.2.1
   - MSM (Multimodal Surface Matching) v3.0
   - MATLAB Runtime R2022b
-  - MRIcroGL
-  - dcm2niix
+  - MRIcroGL v1.2.20220720
+  - dcm2niix v1.0.20260416
 - **Development Tools**: Python 3.12 (venv at `/opt/venv`), Jupyter Notebook, Git
 - **Python Packages**: numpy, pandas, matplotlib, seaborn, nibabel, nipype, pcntoolkit, and more
 - **Multi-language Support**: English and Japanese fonts/locales
@@ -140,7 +140,7 @@ Default resolution: 1920x1080x24. The value must be `WIDTHxHEIGHTxDEPTH` (depth 
 - **HCP Pipelines**: `/home/brain/projects/HCPpipelines` (HCPPIPEDIR set in `Examples/Scripts/SetUpHCPPipeline.sh`)
 - **FreeSurfer**: `/usr/local/freesurfer/6.0.1` (automatically configured)
 - **FSL**: `/usr/local/fsl` (FSLDIR set)
-- **Connectome Workbench**: Available in PATH
+- **Connectome Workbench**: `/usr/local/workbench` (in PATH)
 - **MSM**: Available in PATH
 - **MATLAB Runtime**: `/usr/local/MATLAB/MCR/R2022b`
 
@@ -217,11 +217,11 @@ Lin4Neuro は、ニューロイメージング解析用にカスタマイズさ�
   - HCP Pipelines v6.0.0
   - FreeSurfer 6.0.1
   - FSL 6.0.7.23
-  - Connectome Workbench
+  - Connectome Workbench 2.2.1
   - MSM (Multimodal Surface Matching) v3.0
   - MATLAB Runtime R2022b
-  - MRIcroGL
-  - dcm2niix
+  - MRIcroGL v1.2.20220720
+  - dcm2niix v1.0.20260416
 - **開発ツール**: Python 3.12 (venv: `/opt/venv`), Jupyter Notebook, Git
 - **Python パッケージ**: numpy, pandas, matplotlib, seaborn, nibabel, nipype, pcntoolkit など
 - **多言語サポート**: 英語・日本語フォント/ロケール
@@ -342,7 +342,7 @@ docker run \
 - **HCP Pipelines**: `/home/brain/projects/HCPpipelines` (HCPPIPEDIR は `Examples/Scripts/SetUpHCPPipeline.sh` で設定)
 - **FreeSurfer**: `/usr/local/freesurfer/6.0.1` (自動設定)
 - **FSL**: `/usr/local/fsl` (FSLDIR設定済み)
-- **Connectome Workbench**: PATH利用可能
+- **Connectome Workbench**: `/usr/local/workbench` (PATH設定済み)
 - **MSM**: PATH利用可能
 - **MATLAB Runtime**: `/usr/local/MATLAB/MCR/R2022b`
 
@@ -429,9 +429,11 @@ docker rm -f l4n-hcp
 - HCP Pipelines: v6.0.0
 - FreeSurfer: 6.0.1
 - FSL: 6.0.7.23
-- Connectome Workbench: 2.1.0
+- Connectome Workbench: 2.2.1
 - MSM: v3.0
 - MATLAB Runtime: R2022b
+- MRIcroGL: v1.2.20220720
+- dcm2niix: v1.0.20260416
 
 ### License
 This container includes multiple software packages, each with its own license. Users are responsible for ensuring compliance with all applicable licenses:

@@ -64,12 +64,25 @@ FROM base-builder AS tools-builder
 
 RUN --mount=type=bind,source=build/packages/MRIcroGL_linux.zip,target=/tmp/packages/MRIcroGL_linux.zip \
     --mount=type=bind,source=build/packages/dcm2niix_lnx.zip,target=/tmp/packages/dcm2niix_lnx.zip \
+    --mount=type=bind,source=build/packages/workbench-linux64-v2.2.1.zip,target=/tmp/packages/workbench-linux64-v2.2.1.zip \
     set -ex && \
     # MRIcroGL
     unzip /tmp/packages/MRIcroGL_linux.zip -d /usr/local/ && \
     # dcm2niix
     mkdir -p /usr/local/dcm2niix && \
-    unzip /tmp/packages/dcm2niix_lnx.zip -d /usr/local/dcm2niix
+    unzip /tmp/packages/dcm2niix_lnx.zip -d /usr/local/dcm2niix && \
+    # MRIcroGL bundles its own dcm2niix, built on the same day as MRIcroGL
+    # itself (v1.0.20220720). Replace it with a link to the standalone one so
+    # there is only one version in the image: MRIcroGL's "Import" runs the
+    # binary next to itself, and the CLI takes it from PATH.
+    rm /usr/local/MRIcroGL/Resources/dcm2niix && \
+    ln -s /usr/local/dcm2niix/dcm2niix /usr/local/MRIcroGL/Resources/dcm2niix && \
+    # Connectome Workbench (official build from humanconnectome.org; the zip
+    # already has "workbench/" at its top level, so this lands in
+    # /usr/local/workbench). Nothing is pruned: the README says not to alter
+    # the contents, and bin_linux64/* resolve their own location with
+    # "readlink -f $0", so the tree must stay intact.
+    unzip /tmp/packages/workbench-linux64-v2.2.1.zip -d /usr/local/
 
 #------------------------------------------------------------------------------
 # fs-builder: FreeSurfer 6.0.1
@@ -219,7 +232,11 @@ RUN --mount=type=bind,source=build/packages/libpng12-0_1.2.54-1ubuntu1.1+1~ppa0~
       # Apps & Libs
       gawk sed libopenblas-base \
       libjpeg62 language-pack-en gettext \
-      libncurses5 && \
+      libncurses5 \
+      # Connectome Workbench: the official build bundles Qt6, FTGL and OSMesa,
+      # but not these. octave happens to pull all three in as well, so listing
+      # them here is about not depending on that by accident.
+      libgl1 libglu1-mesa libgomp1 && \
     apt-get install -y octave gnumeric && \
     # libpng12 for FreeSurfer 6.0.1 (lib/qt/lib/libQtGui.so.4 and the kvl*
     # GUI binaries link against it; jammy no longer ships it)
@@ -238,18 +255,13 @@ RUN --mount=type=bind,source=build/packages/libpng12-0_1.2.54-1ubuntu1.1+1~ppa0~
       tee /etc/apt/sources.list.d/mozilla.list > /dev/null && \
     echo 'Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000' | \
       tee /etc/apt/preferences.d/mozilla && \
-    # NeuroDebian repository (Connectome Workbench)
-    . /etc/os-release && \
-    printf '%s\n%s\n' \
-      "deb [arch=amd64 signed-by=/usr/share/keyrings/neurodebian.gpg] http://neuroimaging.sakura.ne.jp/neurodebian data main contrib non-free" \
-      "deb [arch=amd64 signed-by=/usr/share/keyrings/neurodebian.gpg] http://neuroimaging.sakura.ne.jp/neurodebian ${VERSION_CODENAME} main contrib non-free" \
-      > /etc/apt/sources.list.d/neurodebian.sources.list && \
-    wget -qO- http://neuro.debian.net/_static/neuro.debian.net.asc | \
-      gpg --dearmor --yes --output /usr/share/keyrings/neurodebian.gpg && \
+    # NeuroDebian is no longer needed: Connectome Workbench was the only
+    # package taken from it, and it now comes from the official build in
+    # build/packages (see tools-builder). That build bundles its own Qt6, so
+    # it no longer shares the system Qt5 with octave either.
     apt-get update && \
     apt-get install -y --no-install-recommends firefox && \
     apt-get install -y --no-install-recommends python3.12 python3.12-venv python3.12-tk && \
-    apt-get install -y connectome-workbench && \
     xdg-mime default firefox.desktop text/html && \
     # Final apt cleanup for this layer (must stay in this RUN to be effective)
     apt-get clean && \
@@ -284,6 +296,13 @@ RUN set -ex && \
 # Part 2a: Copy small neuroimaging tools
 COPY --from=tools-builder /usr/local/MRIcroGL/ /usr/local/MRIcroGL/
 COPY --from=tools-builder /usr/local/dcm2niix/ /usr/local/dcm2niix/
+COPY --from=tools-builder /usr/local/workbench/ /usr/local/workbench/
+
+# MRIcroGL falls back to /usr/bin/dcm2niix and /usr/local/bin/dcm2niix when the
+# binary next to it is missing, so give that fallback the standalone one too.
+# Only the three directories above are copied from tools-builder, so this link
+# has to be made here rather than in the builder stage.
+RUN ln -s /usr/local/dcm2niix/dcm2niix /usr/local/bin/dcm2niix
 
 # Part 2b: Copy FreeSurfer
 COPY --from=fs-builder /usr/local/freesurfer/ /usr/local/freesurfer/
@@ -304,12 +323,26 @@ COPY build/home/bash_aliases /etc/skel/.bash_aliases
 COPY build/home/bash_aliases /root/.bash_aliases
 COPY --chown=brain:brain build/home/bash_aliases /home/brain/.bash_aliases
 COPY --chown=brain:brain build/home/startup.m /home/brain/matlab/
+# Desktop menu customization (same layout as docker-abis-2027):
+# - xfce-applications.menu adds the "Neuroimaging" submenu
+# - Neuroimaging.directory gives that submenu its name and brain icon
+# - applications/ holds the .desktop entries for the GUI tools in this image
+# - icons go to /usr/share/pixmaps, where both the .desktop entries and the
+#   panel button (button-icon=brain64x48 in xfce4-panel.xml) look them up
+# Menu entries are launched by xfdesktop without a login shell, so every Exec
+# must be self-contained: ~/.bash_aliases (which sets FSLDIR, FREESURFER_HOME
+# and PATH) is not read here.
+COPY --chown=brain:brain build/desktop/menus/xfce-applications.menu /home/brain/.config/menus/xfce-applications.menu
+COPY --chown=brain:brain build/desktop/desktop-directories/ /home/brain/.local/share/desktop-directories/
+COPY --chown=brain:brain build/desktop/applications/ /home/brain/.local/share/applications/
+COPY build/desktop/icons/ /usr/share/pixmaps/
 COPY --chown=brain:brain build/desktop/xfce4-desktop.xml /home/brain/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
 COPY --chown=brain:brain build/desktop/xfce4-panel.xml /home/brain/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
 COPY --chown=brain:brain build/desktop/terminalrc /home/brain/.config/xfce4/terminal/terminalrc
 COPY build/init/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY --chmod=755 build/init/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY --chmod=755 build/init/startup.sh /usr/local/bin/startup.sh
+COPY --chmod=755 build/init/wait-for-x.sh /usr/local/bin/wait-for-x.sh
 
 # The user itself was created in Part 0; only its shell files, the VNC
 # password and a few empty directories remain. No recursive chown over
@@ -317,7 +350,6 @@ COPY --chmod=755 build/init/startup.sh /usr/local/bin/startup.sh
 RUN set -ex && \
     rm -f /usr/share/backgrounds/xfce/xfce*.*p*g && \
     chmod 644 /root/.bash_aliases /etc/skel/.bash_aliases && \
-    sed -i "s/UI.initSetting('resize', 'off');/UI.initSetting('resize', 'local');/g" /usr/share/novnc/app/ui.js && \
     echo '# Load .bashrc for bash login shells' > /home/brain/.profile && \
     echo 'if [ -n "$BASH_VERSION" ]; then' >> /home/brain/.profile && \
     echo '  . ~/.bashrc' >> /home/brain/.profile && \
@@ -337,11 +369,75 @@ RUN set -ex && \
     git config --system --add safe.directory '*' && \
     git config --system core.fileMode false
 
+# noVNC / websockify patches.
+#
+# Both of these are about state that lives in the *browser*, not in the
+# container, which is why a client broken by them cannot be diagnosed from the
+# container logs at all (see LOG.md, 2026-09-28).
+#
+# Every pattern is asserted before it is replaced: jammy pins novnc 1.0.0 and
+# websockify 0.10.0, but if a security update ever changes these files the
+# build must stop rather than silently produce an image with the fix missing.
+RUN python3 <<'PATCH'
+import sys
+
+UI = "/usr/share/novnc/app/ui.js"
+WS = "/usr/lib/python3/dist-packages/websockify/websockifyserver.py"
+
+edits = [
+    # Scale the remote screen to the browser window instead of showing it
+    # at 1:1 with scrollbars.
+    (UI,
+     "UI.initSetting('resize', 'off');",
+     "UI.initSetting('resize', 'local');"),
+
+    # initSetting reads the query string, then localStorage, and only then
+    # the default. localStorage belongs to the origin (http://host:6080), so
+    # an "encrypt" left behind by any other noVNC container ever run on that
+    # same port makes this one build a wss:// URL. websockify has no
+    # certificate, the connection dies, and noVNC hangs before the password
+    # prompt. This image never serves https, so force the value every load.
+    (UI,
+     'UI.initSetting(\'encrypt\', (window.location.protocol === "https:"));',
+     'UI.updateSetting(\'encrypt\', (window.location.protocol === "https:"));'),
+
+    # websockify sends neither Cache-Control nor ETag, only the 2018 mtime of
+    # the noVNC files. Chrome then applies heuristic freshness -- 10% of the
+    # age, about ten months -- and serves vnc.html, ui.js and core/*.js from
+    # disk without revalidating. A stale copy from another container on the
+    # same host:port replaces this one's client entirely.
+    (WS,
+     "    def do_GET(self):\n",
+     '    def end_headers(self):\n'
+     '        self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")\n'
+     '        super().end_headers()\n'
+     '\n'
+     '    def do_GET(self):\n'),
+]
+
+for path, old, new in edits:
+    s = open(path).read()
+    if s.count(old) != 1:
+        sys.exit("patch target appears %d times in %s: %r"
+                 % (s.count(old), path, old))
+    open(path, "w").write(s.replace(old, new, 1))
+    print("patched", path)
+PATCH
+
 # Expose port for noVNC
 EXPOSE 6080
 
 # startup.sh runs as ROOT first, then switches to brain user
 ENV USER=brain
+
+# The image had no locale set. The Qt6 that Connectome Workbench 2.2.1 bundles
+# prints a four-line warning to stderr on every single run when the locale is
+# not UTF-8, and HCP Pipelines calls wb_command from 112 of its scripts, so the
+# logs fill up with it. C.UTF-8 keeps C collation (sort order is unchanged) and
+# only fixes the character encoding.
+# This ENV is deliberately at the end of the file: changing an ENV near the top
+# of the final stage invalidates every apt and venv layer after it.
+ENV LANG=C.UTF-8
 
 # Set the default command to run on container start
 CMD ["/usr/local/bin/startup.sh"]

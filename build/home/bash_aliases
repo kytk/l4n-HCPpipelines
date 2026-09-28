@@ -20,11 +20,16 @@ export QT_GRAPHICSSYSTEM=native
 export QT_X11_NO_XIM=1
 
 # MRIcroGL
+# Resources/ is not added: the only executable in it was dcm2niix, and that is
+# now a link to /usr/local/dcm2niix/dcm2niix, which is on PATH just below.
 export PATH=/usr/local/MRIcroGL:$PATH
-export PATH=/usr/local/MRIcroGL/Resources:$PATH
 
 # dcm2niix
 export PATH=/usr/local/dcm2niix:$PATH
+
+# Connectome Workbench (official build; bin_linux64/* are wrappers that
+# resolve their own location, so this directory is the one to use)
+export PATH=/usr/local/workbench/bin_linux64:$PATH
 
 #FreeSurfer 6.0.1
 export SUBJECTS_DIR=~/freesurfer/6.0.1/subjects

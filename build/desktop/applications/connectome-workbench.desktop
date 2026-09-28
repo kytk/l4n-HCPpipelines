@@ -1,0 +1,14 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Connectome Workbench
+GenericName=HCP Viewing and Analysis Tools
+# Official build from humanconnectome.org, unpacked in /usr/local/workbench.
+# It ships no .desktop file and no icon, so the icon in build/desktop/icons was
+# taken from the NeuroDebian package this replaced (same project, GPLv2+).
+Exec=/usr/local/workbench/bin_linux64/wb_view %F
+TryExec=/usr/local/workbench/bin_linux64/wb_view
+Icon=connectome-workbench
+Type=Application
+Terminal=false
+Categories=Neuroimaging;
+NoDisplay=false

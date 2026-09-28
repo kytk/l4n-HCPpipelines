@@ -1,0 +1,15 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Freeview
+GenericName=FreeSurfer Viewer
+# FreeSurfer 6.0.1 ships freeview as a tcsh wrapper that sources
+# $FREESURFER_HOME/bin/{tcl,vtk,qt}_setup and then runs freeview.bin by name,
+# so both FREESURFER_HOME and $FREESURFER_HOME/bin on PATH are required.
+# .bash_aliases is not read here (no login shell), hence the explicit env.
+Exec=env FREESURFER_HOME=/usr/local/freesurfer/6.0.1 PATH=/usr/local/freesurfer/6.0.1/bin:/opt/venv/bin:/usr/bin:/bin /usr/local/freesurfer/6.0.1/bin/freeview %F
+TryExec=/usr/local/freesurfer/6.0.1/bin/freeview
+Icon=fscortex.png
+Type=Application
+Terminal=false
+Categories=Neuroimaging;
+NoDisplay=false
