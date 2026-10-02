@@ -234,10 +234,9 @@ RUN --mount=type=bind,source=build/packages/libpng12-0_1.2.54-1ubuntu1.1+1~ppa0~
       libjpeg62 language-pack-en gettext \
       libncurses5 \
       # Connectome Workbench: the official build bundles Qt6, FTGL and OSMesa,
-      # but not these. octave happens to pull all three in as well, so listing
-      # them here is about not depending on that by accident.
+      # but not these.
       libgl1 libglu1-mesa libgomp1 && \
-    apt-get install -y octave gnumeric && \
+    apt-get install -y gnumeric && \
     # libpng12 for FreeSurfer 6.0.1 (lib/qt/lib/libQtGui.so.4 and the kvl*
     # GUI binaries link against it; jammy no longer ships it)
     apt-get install -y /tmp/packages/libpng12-0_1.2.54-1ubuntu1.1+1~ppa0~eoan_amd64.deb && \
@@ -257,8 +256,7 @@ RUN --mount=type=bind,source=build/packages/libpng12-0_1.2.54-1ubuntu1.1+1~ppa0~
       tee /etc/apt/preferences.d/mozilla && \
     # NeuroDebian is no longer needed: Connectome Workbench was the only
     # package taken from it, and it now comes from the official build in
-    # build/packages (see tools-builder). That build bundles its own Qt6, so
-    # it no longer shares the system Qt5 with octave either.
+    # build/packages (see tools-builder). That build bundles its own Qt6.
     apt-get update && \
     apt-get install -y --no-install-recommends firefox && \
     apt-get install -y --no-install-recommends python3.12 python3.12-venv python3.12-tk && \
