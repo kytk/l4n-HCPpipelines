@@ -2,9 +2,20 @@
 
 # Dockerfile for kytk/l4n-HCPpipeline with Multi-Stage Build
 # Author: K. Nemoto
-# Date: 27 Sep 2026
+# Date: 3 Oct 2026
 # Description: This Dockerfile uses a multi-stage build to create a smaller,
 #              optimized container image for HCP Pipelines 6.x.
+
+# Ver.261003
+#   - octave removed: HCP Pipelines only uses it with MatlabMode=2, and every
+#     modified script runs the compiled MATLAB (MatlabMode=0)
+#   - Connectome Workbench: NeuroDebian 2.1.0 -> official build 2.2.1 in
+#     /usr/local/workbench (bundles Qt6); NeuroDebian is no longer used.
+#     LANG=C.UTF-8, without which Qt6 warns on every wb_command run
+#   - noVNC: no longer hangs before the password prompt (stale "encrypt" in
+#     localStorage, and Chrome's disk cache of the noVNC files)
+#   - x11vnc and xfce4-session wait for Xvfb (wait-for-x.sh)
+#   - Menu: brain icon and a "Neuroimaging" submenu, as in docker-abis-2027
 
 # Ver.260927
 #   - HCPpipelines: pinned to v6.0.0 (FreeSurfer stays at 6.0.1, which

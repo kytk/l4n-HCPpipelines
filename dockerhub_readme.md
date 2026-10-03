@@ -450,6 +450,7 @@ This container includes multiple software packages, each with its own license. U
 - Issues: https://github.com/kytk/l4n-HCPpipelines/issues
 
 ### Version History
+- 2026-10-03: Connectome Workbench 2.2.1 (official build), octave removed, noVNC no longer hangs before the password prompt, "Neuroimaging" submenu in the desktop menu.
 - 2026-09-27: HCP Pipelines v6.0.0 (FreeSurfer 6.0.1 kept), FSL 6.0.7.23, Python 3.12 venv (`/opt/venv`), MATLAB steps use the compiled runtime (MatlabMode=0), smaller image. The shared folder is always `/home/brain/share` (NTFS on Windows); `--privileged` is no longer needed.
 - 2026-01-04: modify scripts so that data can be saved outside containers.
 - 2025-12-25: Initial release with HCP Pipelines v5.0.0 and complete neuroimaging analysis environment
