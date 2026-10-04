@@ -101,6 +101,43 @@ docker run \
 
 Default resolution: 1920x1080x24. The value must be `WIDTHxHEIGHTxDEPTH` (depth 8, 16, 24 or 32); anything else falls back to the default (see `docker logs`).
 
+### Using an NVIDIA GPU
+
+The FSL CUDA programs (`eddy_cuda`, `bedpostx_gpu`, `xfibres_gpu`, `probtrackx2_gpu`, `mmorf_cuda`) are included. To run them on the GPU, the host needs:
+
+- **Linux:** the NVIDIA driver and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). After installing the toolkit, run:
+  ```bash
+  sudo nvidia-ctk runtime configure --runtime=docker
+  sudo systemctl restart docker
+  ```
+- **Windows:** the NVIDIA driver for Windows and Docker Desktop with the WSL2 backend (no extra toolkit needed)
+- **macOS:** not supported (no NVIDIA GPU)
+
+Add `--gpus all` and `-e NVIDIA_DRIVER_CAPABILITIES=compute,utility` when starting the container:
+
+```bash
+docker run \
+  --gpus all \
+  -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+  --shm-size=4g \
+  --platform linux/amd64 \
+  --name l4n-hcp \
+  -d -p 127.0.0.1:6080:6080 \
+  -v .:/home/brain/share \
+  kytk/l4n-hcppipelines:latest
+```
+
+`utility` makes `nvidia-smi` available in the container. FSL's `eddy` and `find_cuda_exe` use it to decide whether to run the CUDA version, so do not leave it out.
+
+Check inside the container:
+
+```bash
+nvidia-smi                          # the GPU is listed
+find_cuda_exe eddy_cuda eddy_cpu    # prints /usr/local/fsl/bin/eddy_cuda
+```
+
+In HCP Pipelines, `DiffPreprocPipeline.sh` uses `eddy_cuda` by default (`--gpu=True`). Without a GPU, pass `--gpu=False` to use `eddy_cpu`.
+
 ### Container Management
 
 **Stop the container:**
@@ -231,6 +268,43 @@ docker run \
 ```
 
 デフォルト解像度: 1920x1080x24。値は `幅x高さx色深度`（色深度は 8, 16, 24, 32 のいずれか）の形式で指定してください。それ以外の値の場合はデフォルトが使われます（`docker logs` で確認できます）。
+
+### NVIDIA GPU を使う
+
+FSL の CUDA 版プログラム（`eddy_cuda`、`bedpostx_gpu`、`xfibres_gpu`、`probtrackx2_gpu`、`mmorf_cuda`）が入っています。GPU で動かすには、ホスト側に以下が必要です。
+
+- **Linux:** NVIDIA ドライバと [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)。Toolkit を入れたあと、以下を実行します：
+  ```bash
+  sudo nvidia-ctk runtime configure --runtime=docker
+  sudo systemctl restart docker
+  ```
+- **Windows:** Windows 用の NVIDIA ドライバと、WSL2 バックエンドの Docker Desktop（Toolkit の追加は不要）
+- **macOS:** 非対応（NVIDIA GPU がないため）
+
+コンテナ起動時に `--gpus all` と `-e NVIDIA_DRIVER_CAPABILITIES=compute,utility` を付けます：
+
+```bash
+docker run \
+  --gpus all \
+  -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+  --shm-size=4g \
+  --platform linux/amd64 \
+  --name l4n-hcp \
+  -d -p 127.0.0.1:6080:6080 \
+  -v .:/home/brain/share \
+  kytk/l4n-hcppipelines:latest
+```
+
+`utility` を指定すると、コンテナ内で `nvidia-smi` が使えるようになります。FSL の `eddy` や `find_cuda_exe` は `nvidia-smi` を使って CUDA 版を使うかどうかを決めるため、省略しないでください。
+
+コンテナ内での確認：
+
+```bash
+nvidia-smi                          # GPU が表示される
+find_cuda_exe eddy_cuda eddy_cpu    # /usr/local/fsl/bin/eddy_cuda と表示される
+```
+
+HCP Pipelines の `DiffPreprocPipeline.sh` は、既定で `eddy_cuda` を使います（`--gpu=True`）。GPU がない環境では `--gpu=False` を指定すると `eddy_cpu` が使われます。
 
 ### コンテナ管理
 

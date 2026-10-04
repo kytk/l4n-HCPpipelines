@@ -128,6 +128,28 @@ docker run \
 
 Default resolution: 1920x1080x24. The value must be `WIDTHxHEIGHTxDEPTH` (depth 8, 16, 24 or 32); anything else falls back to the default (see `docker logs`).
 
+### Using an NVIDIA GPU
+
+The FSL CUDA programs (`eddy_cuda`, `bedpostx_gpu`, `xfibres_gpu`, `probtrackx2_gpu`, `mmorf_cuda`) are included. To run them on the GPU, the host needs:
+
+- **Linux:** the NVIDIA driver and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html), then `sudo nvidia-ctk runtime configure --runtime=docker && sudo systemctl restart docker`
+- **Windows:** the NVIDIA driver for Windows and Docker Desktop with the WSL2 backend
+- **macOS:** not supported
+
+```bash
+docker run \
+  --gpus all \
+  -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+  --shm-size=4g \
+  --platform linux/amd64 \
+  --name l4n-hcp \
+  -d -p 127.0.0.1:6080:6080 \
+  -v .:/home/brain/share \
+  kytk/l4n-hcppipelines:latest
+```
+
+`utility` makes `nvidia-smi` available in the container; FSL's `eddy` and `find_cuda_exe` use it to decide whether to run the CUDA version. Check with `nvidia-smi` and `find_cuda_exe eddy_cuda eddy_cpu` (prints `/usr/local/fsl/bin/eddy_cuda`). `DiffPreprocPipeline.sh` uses `eddy_cuda` by default (`--gpu=True`); without a GPU, pass `--gpu=False`.
+
 ### Port Mapping
 - Port `6080`: noVNC web interface
 
@@ -330,6 +352,28 @@ docker run \
 
 デフォルト解像度: 1920x1080x24。値は `幅x高さx色深度`（色深度は 8, 16, 24, 32 のいずれか）の形式で指定してください。それ以外の値の場合はデフォルトが使われます（`docker logs` で確認できます）。
 
+### NVIDIA GPU を使う
+
+FSL の CUDA 版プログラム（`eddy_cuda`、`bedpostx_gpu`、`xfibres_gpu`、`probtrackx2_gpu`、`mmorf_cuda`）が入っています。GPU で動かすには、ホスト側に以下が必要です。
+
+- **Linux:** NVIDIA ドライバと [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)。入れたあと `sudo nvidia-ctk runtime configure --runtime=docker && sudo systemctl restart docker` を実行
+- **Windows:** Windows 用の NVIDIA ドライバと、WSL2 バックエンドの Docker Desktop
+- **macOS:** 非対応
+
+```bash
+docker run \
+  --gpus all \
+  -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+  --shm-size=4g \
+  --platform linux/amd64 \
+  --name l4n-hcp \
+  -d -p 127.0.0.1:6080:6080 \
+  -v .:/home/brain/share \
+  kytk/l4n-hcppipelines:latest
+```
+
+`utility` を指定すると、コンテナ内で `nvidia-smi` が使えます。FSL の `eddy` や `find_cuda_exe` はこれを使って CUDA 版を使うか決めます。`nvidia-smi` と `find_cuda_exe eddy_cuda eddy_cpu`（`/usr/local/fsl/bin/eddy_cuda` と表示される）で確認できます。`DiffPreprocPipeline.sh` は既定で `eddy_cuda` を使います（`--gpu=True`）。GPU がない環境では `--gpu=False` を指定してください。
+
 ### ポートマッピング
 - ポート `6080`: noVNC Webインターフェース
 
@@ -416,6 +460,7 @@ docker rm -f l4n-hcp
 - Supported platforms: Linux (x86_64), macOS (x86_64), Windows with WSL2
 - Docker flags required: `--shm-size=4g --platform linux/amd64` (no `--privileged` needed)
 - Shared folder on Windows: NTFS drive required (exFAT/FAT32 cannot store Linux file ownership)
+- GPU (optional): NVIDIA GPU with the NVIDIA Container Toolkit (Linux) or Docker Desktop + WSL2 (Windows); start with `--gpus all`
 
 ### Container Details
 - Base image: Ubuntu 22.04 LTS
