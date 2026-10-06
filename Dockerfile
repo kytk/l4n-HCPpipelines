@@ -2,9 +2,20 @@
 
 # Dockerfile for kytk/l4n-HCPpipeline with Multi-Stage Build
 # Author: K. Nemoto
-# Date: 3 Oct 2026
+# Date: 6 Oct 2026
 # Description: This Dockerfile uses a multi-stage build to create a smaller,
 #              optimized container image for HCP Pipelines 6.x.
+
+# Ver.261006
+#   - fix numpy version (2.3.5)
+# Ver.261004
+#   - Connectome Workbench: wb_view aborted with "Could not load the Qt
+#     platform plugin xcb". The libraries that Qt6's xcb plugin links against
+#     (libxcb-cursor0, libxcb-icccm4, libxcb-keysyms1, libxcb-xkb1,
+#     libxkbcommon-x11-0) came with NeuroDebian's workbench and were lost
+#     when it was dropped in 261003; they are now installed explicitly
+#   - GPU: README describes how to run the FSL CUDA programs (eddy_cuda,
+#     bedpostx_gpu, probtrackx2_gpu, ...) with docker run --gpus all
 
 # Ver.261003
 #   - octave removed: HCP Pipelines only uses it with MatlabMode=2, and every
@@ -245,8 +256,13 @@ RUN --mount=type=bind,source=build/packages/libpng12-0_1.2.54-1ubuntu1.1+1~ppa0~
       libjpeg62 language-pack-en gettext \
       libncurses5 \
       # Connectome Workbench: the official build bundles Qt6, FTGL and OSMesa,
-      # but not these.
-      libgl1 libglu1-mesa libgomp1 && \
+      # but not these. The xcb ones are what Qt6's xcb platform plugin
+      # (libQt6XcbQpa) links against; without them wb_view aborts with
+      # "Could not load the Qt platform plugin xcb" (wb_command is unaffected).
+      # libxcb-cursor0 pulls in libxcb-image0 and libxcb-render-util0.
+      libgl1 libglu1-mesa libgomp1 \
+      libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-xkb1 \
+      libxkbcommon-x11-0 && \
     apt-get install -y gnumeric && \
     # libpng12 for FreeSurfer 6.0.1 (lib/qt/lib/libQtGui.so.4 and the kvl*
     # GUI binaries link against it; jammy no longer ships it)
@@ -295,7 +311,7 @@ RUN set -ex && \
     python3.12 -m venv /opt/venv && \
     /opt/venv/bin/pip install --no-cache-dir --upgrade pip && \
     /opt/venv/bin/pip install --no-cache-dir \
-       numpy scipy pandas matplotlib seaborn jupyter notebook \
+       numpy==2.3.5 scipy pandas matplotlib seaborn jupyter notebook \
        nibabel nipype pydicom python-gdcm heudiconv \
        psutil threadpoolctl joblib scikit-learn xgboost onnxruntime \
        pcntoolkit==1.3.0 && \
