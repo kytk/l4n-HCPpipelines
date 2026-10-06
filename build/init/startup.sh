@@ -1,7 +1,7 @@
 #!/bin/bash
 # Shared Folder Setup - Cross-platform (Windows/macOS/Linux)
 # Author: K. Nemoto
-# Version: 1.0.19
+# Version: 1.0.20
 #
 # The shared folder is always mounted at /home/brain/share on every OS.
 # On Windows the external drive must be NTFS: exFAT cannot store POSIX
@@ -28,6 +28,12 @@ elif [[ ! "$RESOLUTION" =~ ^[0-9]+x[0-9]+x(8|16|24|32)$ ]]; then
     RESOLUTION=$default_resolution
 fi
 echo "Screen resolution: $RESOLUTION"
+
+# Single-node Slurm for fsl_sub (docker run -e SLURM=off to disable). Runs
+# here because the daemons need root, and both the desktop and the
+# interactive (-it) start pass through this script.
+echo "=== Starting Slurm ==="
+/usr/local/bin/slurm-init.sh
 
 echo "=== Starting container ==="
 exec su - brain -c "RESOLUTION=$RESOLUTION /usr/local/bin/entrypoint.sh"

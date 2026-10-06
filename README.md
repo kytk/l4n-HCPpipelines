@@ -138,6 +138,29 @@ find_cuda_exe eddy_cuda eddy_cpu    # prints /usr/local/fsl/bin/eddy_cuda
 
 In HCP Pipelines, `DiffPreprocPipeline.sh` uses `eddy_cuda` by default (`--gpu=True`). Without a GPU, pass `--gpu=False` to use `eddy_cpu`.
 
+### Running Jobs with fsl_sub (Slurm)
+
+A single-node Slurm runs inside the container, and `fsl_sub` submits to it. Nothing needs to be installed on the host. The CPUs and memory of the machine are detected each time the container starts (`docker logs` shows them).
+
+In the HCP Pipelines batch scripts (`~/projects/HCPpipelines/Examples/Scripts/*Batch.sh`), set:
+
+```bash
+QUEUE="main"
+```
+
+Each subject then becomes one job. `fsl_sub` can also be used directly:
+
+```bash
+fsl_sub -q main -R 16 -l logs -N mytask command args   # -R: memory in GB
+squeue                     # list jobs
+scancel <job ID>           # cancel a job
+```
+
+- A job that does not give `-R` is counted as 8 GB, and jobs run as long as they fit in the memory (minus 2 GB for the desktop). Example: 64 GB → up to 7 jobs at once. The limit is only used for scheduling; actual memory use is not capped
+- `docker stop` interrupts the running jobs. On `docker start`, Slurm runs them again **from the beginning**, and queued jobs stay in the queue. To abandon them, `scancel` them after the start
+- `fsl_sub_report` does not work (there is no accounting database); use `squeue`
+- To disable Slurm, start the container with `-e SLURM=off`. `fsl_sub` then runs jobs in place, as without a cluster
+
 ### Container Management
 
 **Stop the container:**
@@ -305,6 +328,29 @@ find_cuda_exe eddy_cuda eddy_cpu    # /usr/local/fsl/bin/eddy_cuda と表示さ�
 ```
 
 HCP Pipelines の `DiffPreprocPipeline.sh` は、既定で `eddy_cuda` を使います（`--gpu=True`）。GPU がない環境では `--gpu=False` を指定すると `eddy_cpu` が使われます。
+
+### fsl_sub でジョブを流す（Slurm）
+
+コンテナの中で 1 ノードの Slurm が動いていて、`fsl_sub` はそこにジョブを投げます。ホスト側に何かを入れる必要はありません。マシンの CPU 数とメモリは、コンテナを起動するたびに調べ直します（`docker logs` で確認できます）。
+
+HCP Pipelines の Batch スクリプト（`~/projects/HCPpipelines/Examples/Scripts/*Batch.sh`）で、次のように設定します：
+
+```bash
+QUEUE="main"
+```
+
+これで被験者ごとに 1 つのジョブになります。`fsl_sub` を直接使うこともできます：
+
+```bash
+fsl_sub -q main -R 16 -l logs -N mytask コマンド 引数   # -R: メモリ（GB）
+squeue                     # ジョブの一覧
+scancel <ジョブ ID>        # ジョブの取り消し
+```
+
+- `-R` を指定しないジョブは 8 GB として数えます。メモリ（デスクトップ用に 2 GB を引いた残り）に収まるだけのジョブが同時に動きます。例: 64 GB → 最大 7 本。これは同時に流す本数を決めるためだけの値で、実際のメモリ使用量は制限されません
+- `docker stop` で実行中のジョブは中断されます。`docker start` すると、Slurm はそれらを**最初から**実行し直します（待ち行列のジョブもそのまま残ります）。やめたいジョブは起動後に `scancel` してください
+- `fsl_sub_report` は使えません（accounting のデータベースがないため）。`squeue` を使ってください
+- Slurm を使わないときは、`-e SLURM=off` を付けてコンテナを起動します。この場合 `fsl_sub` は、クラスタがないときと同じようにその場でジョブを実行します
 
 ### コンテナ管理
 

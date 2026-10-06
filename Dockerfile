@@ -2,10 +2,16 @@
 
 # Dockerfile for kytk/l4n-HCPpipeline with Multi-Stage Build
 # Author: K. Nemoto
-# Date: 6 Oct 2026
+# Date: 7 Oct 2026
 # Description: This Dockerfile uses a multi-stage build to create a smaller,
 #              optimized container image for HCP Pipelines 6.x.
 
+# Ver.261007
+#   - Slurm: a single-node Slurm (jammy's 21.08) runs inside the container,
+#     so that fsl_sub queues jobs (QUEUE="main" in the HCP Pipelines batch
+#     scripts). build/init/slurm-init.sh writes slurm.conf and /etc/fsl_sub.yml
+#     for the host on every start; docker run -e SLURM=off disables it, and
+#     fsl_sub then runs jobs in place as before
 # Ver.261006
 #   - fix numpy version (2.3.5)
 # Ver.261004
@@ -317,6 +323,19 @@ RUN set -ex && \
        pcntoolkit==1.3.0 && \
     chown -R brain:brain /opt/venv
 
+# Part 1c: Slurm (single node, for fsl_sub; see build/init/slurm-init.sh)
+# A separate RUN so that the apt and venv layers above stay cached.
+# The package creates a munge key at install time; it is removed so that no
+# key is shared between containers (slurm-init.sh makes a new one on every
+# start).
+RUN set -ex && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends slurm-wlm munge && \
+    rm -f /etc/munge/munge.key && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    find /var/log/ -type f -exec truncate -s 0 {} \;
+
 # Part 2: Copy pre-built applications from the builder stages
 # Part 2a: Copy small neuroimaging tools
 COPY --from=tools-builder /usr/local/MRIcroGL/ /usr/local/MRIcroGL/
@@ -368,6 +387,7 @@ COPY build/init/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY --chmod=755 build/init/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY --chmod=755 build/init/startup.sh /usr/local/bin/startup.sh
 COPY --chmod=755 build/init/wait-for-x.sh /usr/local/bin/wait-for-x.sh
+COPY --chmod=755 build/init/slurm-init.sh /usr/local/bin/slurm-init.sh
 
 # The user itself was created in Part 0; only its shell files, the VNC
 # password and a few empty directories remain. No recursive chown over

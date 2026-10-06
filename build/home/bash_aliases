@@ -42,6 +42,12 @@ PATH=${FSLDIR}/share/fsl/bin:${PATH}
 export FSLDIR PATH
 . ${FSLDIR}/etc/fslconf/fsl.sh
 
+# fsl_sub: submit to Slurm when slurm-init.sh started it. The file is written
+# only once Slurm is up; without it fsl_sub runs jobs in place.
+if [ -f /etc/fsl_sub.yml ]; then
+    export FSLSUB_CONF=/etc/fsl_sub.yml
+fi
+
 # Python3
 # /usr/bin comes before the FSL conda bin/ that SetUpFreeSurfer.sh adds (it
 # ships its own python3, curl, ...), and /opt/venv/bin (Python 3.12 venv,

@@ -150,6 +150,9 @@ docker run \
 
 `utility` makes `nvidia-smi` available in the container; FSL's `eddy` and `find_cuda_exe` use it to decide whether to run the CUDA version. Check with `nvidia-smi` and `find_cuda_exe eddy_cuda eddy_cpu` (prints `/usr/local/fsl/bin/eddy_cuda`). `DiffPreprocPipeline.sh` uses `eddy_cuda` by default (`--gpu=True`); without a GPU, pass `--gpu=False`.
 
+### Running Jobs with fsl_sub (Slurm)
+A single-node Slurm runs inside the container and `fsl_sub` submits to it; the CPUs and memory of the host are detected on every start. Set `QUEUE="main"` in the HCP Pipelines batch scripts to run each subject as a job, or use `fsl_sub -q main -R <GB> ...` and `squeue` directly. A job without `-R` counts as 8 GB (used for scheduling only, not enforced). Jobs interrupted by `docker stop` are run again from the beginning on `docker start`. Start with `-e SLURM=off` to disable Slurm; `fsl_sub` then runs jobs in place.
+
 ### Port Mapping
 - Port `6080`: noVNC web interface
 
@@ -373,6 +376,9 @@ docker run \
 ```
 
 `utility` を指定すると、コンテナ内で `nvidia-smi` が使えます。FSL の `eddy` や `find_cuda_exe` はこれを使って CUDA 版を使うか決めます。`nvidia-smi` と `find_cuda_exe eddy_cuda eddy_cpu`（`/usr/local/fsl/bin/eddy_cuda` と表示される）で確認できます。`DiffPreprocPipeline.sh` は既定で `eddy_cuda` を使います（`--gpu=True`）。GPU がない環境では `--gpu=False` を指定してください。
+
+### fsl_sub でジョブを流す（Slurm）
+コンテナの中で 1 ノードの Slurm が動いていて、`fsl_sub` はそこにジョブを投げます。ホストの CPU 数とメモリは起動のたびに調べ直します。HCP Pipelines の Batch スクリプトで `QUEUE="main"` とすると被験者ごとに 1 つのジョブになります。`fsl_sub -q main -R <GB> ...` と `squeue` を直接使うこともできます。`-R` のないジョブは 8 GB として数えます（同時に流す本数を決めるためだけの値で、使用量は制限されません）。`docker stop` で中断されたジョブは、`docker start` のあと最初から実行し直されます。`-e SLURM=off` を付けて起動すると Slurm は動かず、`fsl_sub` はその場でジョブを実行します。
 
 ### ポートマッピング
 - ポート `6080`: noVNC Webインターフェース
