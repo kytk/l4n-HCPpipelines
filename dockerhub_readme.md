@@ -223,6 +223,15 @@ docker start l4n-hcp
 docker rm -f l4n-hcp
 ```
 
+### Building the Image
+The image can also be built from the [GitHub repository](https://github.com/kytk/l4n-HCPpipelines). The installers are not in the repository; see its README for the files to put in `build/packages/`.
+
+```bash
+docker build --progress=plain -t kytk/l4n-hcppipelines:latest . 2>&1 | tee build.log
+```
+
+To download Ubuntu packages from a nearby mirror, add `--build-arg UBUNTU_MIRROR=https://ftp.riken.jp/Linux/ubuntu` (`https://` is recommended; the image itself keeps `archive.ubuntu.com`).
+
 ### Troubleshooting
 - If GUI doesn't load, wait 30 seconds for all services to start
 - Check container logs: `docker logs l4n-hcp`
@@ -449,6 +458,15 @@ docker start l4n-hcp
 ```bash
 docker rm -f l4n-hcp
 ```
+
+### イメージのビルド
+[GitHub のリポジトリ](https://github.com/kytk/l4n-HCPpipelines)からイメージをビルドすることもできます。インストーラ類はリポジトリに含まれていません。`build/packages/` に置くファイルはリポジトリの README を見てください。
+
+```bash
+docker build --progress=plain -t kytk/l4n-hcppipelines:latest . 2>&1 | tee build.log
+```
+
+Ubuntu のパッケージを近くのミラーから取得するには、`--build-arg UBUNTU_MIRROR=https://ftp.riken.jp/Linux/ubuntu` を付けます（`https://` を推奨。イメージ自体は `archive.ubuntu.com` のままです）。
 
 ### トラブルシューティング
 - GUIが読み込まれない場合は、すべてのサービスが開始されるまで30秒お待ちください

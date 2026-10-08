@@ -2,10 +2,24 @@
 
 # Dockerfile for kytk/l4n-HCPpipeline with Multi-Stage Build
 # Author: K. Nemoto
-# Date: 7 Oct 2026
+# Date: 8 Oct 2026
 # Description: This Dockerfile uses a multi-stage build to create a smaller,
 #              optimized container image for HCP Pipelines 6.x.
+#
+# Build:
+#   docker build --progress=plain -t kytk/l4n-hcppipelines:latest . 2>&1 | tee build.log
+# With an Ubuntu mirror for apt (optional; https:// recommended):
+#   docker build --progress=plain \
+#     --build-arg UBUNTU_MIRROR=https://ftp.riken.jp/Linux/ubuntu \
+#     -t kytk/l4n-hcppipelines:latest . 2>&1 | tee build.log
 
+# Ver.261008
+#   - FSL's own numpy: 2.4.6 -> 2.3.5 (conda-forge), the same as /opt/venv,
+#     for Rosetta on macOS. Only numpy changes; pinned in conda-meta/pinned
+#   - apt mirror: docker build --build-arg UBUNTU_MIRROR=<url> uses an Ubuntu
+#     mirror instead of archive.ubuntu.com for local builds (http:// or
+#     https://; build/apt/apt-mirror.sh). The image's sources.list is
+#     restored, so it always ships with archive.ubuntu.com
 # Ver.261007
 #   - Slurm: a single-node Slurm (jammy's 21.08) runs inside the container,
 #     so that fsl_sub queues jobs (QUEUE="main" in the HCP Pipelines batch
@@ -78,8 +92,18 @@ FROM ubuntu:22.04 AS base-builder
 ENV DEBIAN_FRONTEND=noninteractive \
     TZ=Asia/Tokyo
 
-# Install build-time dependencies and essential tools
-RUN apt-get update && \
+# Optional Ubuntu mirror for apt (build/apt/apt-mirror.sh), e.g.
+#   docker build --build-arg UBUNTU_MIRROR=https://ftp.riken.jp/Linux/ubuntu ...
+# Empty (the default) keeps archive.ubuntu.com. https:// keeps HTTP caches on
+# the way out of the build. Changing the value rebuilds every stage from here.
+ARG UBUNTU_MIRROR=
+
+# Install build-time dependencies and essential tools. The builder stages are
+# discarded, so the mirror is left in sources.list here.
+RUN --mount=type=bind,source=build/apt/apt-mirror.sh,target=/tmp/apt-mirror.sh \
+    set -ex && \
+    sh /tmp/apt-mirror.sh on && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
       build-essential ca-certificates dkms \
       curl wget git gnupg \
@@ -190,6 +214,26 @@ RUN --mount=type=bind,source=build/packages/fsl-6.0.7.23-jammy.tar.gz,target=/tm
     mv /usr/local/fsl/bin/msm /usr/local/fsl/bin/msm.orig && \
     install -m 755 /tmp/packages/msm_ubuntu_v3 /usr/local/fsl/bin/msm
 
+# FSL's own numpy (2.4.6) -> 2.3.5, the same as /opt/venv (numpy 2.4 does
+# not run under Rosetta on macOS). conda, not pip, so that conda-meta stays
+# in step. python=3.14 is pinned, so the solver picks the cp314 build; the
+# build stops if it changes anything other than numpy. conda-meta/pinned keeps
+# update_fsl_package from bringing 2.4 back. A separate RUN so that the
+# tarball extraction above stays cached; this is a builder stage, so the
+# files replaced here do not add to the image.
+RUN set -ex && \
+    mamba="/usr/local/fsl/bin/micromamba" && \
+    "${mamba}" list -p /usr/local/fsl > /tmp/fsl-before.txt && \
+    "${mamba}" install -y -p /usr/local/fsl --rc-file /usr/local/fsl/.condarc \
+      -c conda-forge "conda-forge::numpy==2.3.5" && \
+    "${mamba}" list -p /usr/local/fsl > /tmp/fsl-after.txt && \
+    diff /tmp/fsl-before.txt /tmp/fsl-after.txt | awk '/^[<>]/' > /tmp/fsl-diff.txt && \
+    cat /tmp/fsl-diff.txt && \
+    ! grep -vw numpy /tmp/fsl-diff.txt && \
+    echo "numpy ==2.3.5" >> /usr/local/fsl/conda-meta/pinned && \
+    /usr/local/fsl/bin/python -c "import numpy, scipy, sklearn, pandas, nibabel, h5py, numba, fsl.data.image; assert numpy.__version__ == '2.3.5', numpy.__version__; print('FSL numpy', numpy.__version__)" && \
+    rm -rf /usr/local/fsl/pkgs /tmp/fsl-*.txt
+
 #------------------------------------------------------------------------------
 # hcp-builder: HCP Pipelines v6.0.0 + modified example scripts
 # The tag is required: an untagged clone gets master, which moves on.
@@ -231,10 +275,18 @@ RUN set -ex && \
     echo "brain:lin4neuro" | chpasswd && \
     usermod -aG sudo brain
 
+# Optional Ubuntu mirror for apt (see base-builder). Each RUN that uses apt
+# switches to the mirror with build/apt/apt-mirror.sh and restores
+# sources.list at the end, so that the image always ships with
+# archive.ubuntu.com.
+ARG UBUNTU_MIRROR=
+
 # Part 1: Install runtime dependencies (one RUN, so that the apt lists removed
 # at the end never land in a layer)
 RUN --mount=type=bind,source=build/packages/libpng12-0_1.2.54-1ubuntu1.1+1~ppa0~eoan_amd64.deb,target=/tmp/packages/libpng12-0_1.2.54-1ubuntu1.1+1~ppa0~eoan_amd64.deb \
+    --mount=type=bind,source=build/apt/apt-mirror.sh,target=/tmp/apt-mirror.sh \
     set -ex && \
+    sh /tmp/apt-mirror.sh on && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
       # XFCE Desktop & VNC
@@ -298,6 +350,7 @@ RUN --mount=type=bind,source=build/packages/libpng12-0_1.2.54-1ubuntu1.1+1~ppa0~
     apt-get clean && \
     apt-get autoremove -y --purge && \
     rm -rf /var/lib/apt/lists/* && \
+    sh /tmp/apt-mirror.sh off && \
     # Remove locales other than English and empty the logs
     find /usr/share/locale -maxdepth 1 -mindepth 1 ! -name 'en*' -exec rm -r {} \; && \
     find /var/log/ -type f -exec truncate -s 0 {} \;
@@ -328,12 +381,15 @@ RUN set -ex && \
 # The package creates a munge key at install time; it is removed so that no
 # key is shared between containers (slurm-init.sh makes a new one on every
 # start).
-RUN set -ex && \
+RUN --mount=type=bind,source=build/apt/apt-mirror.sh,target=/tmp/apt-mirror.sh \
+    set -ex && \
+    sh /tmp/apt-mirror.sh on && \
     apt-get update && \
     apt-get install -y --no-install-recommends slurm-wlm munge && \
     rm -f /etc/munge/munge.key && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
+    sh /tmp/apt-mirror.sh off && \
     find /var/log/ -type f -exec truncate -s 0 {} \;
 
 # Part 2: Copy pre-built applications from the builder stages

@@ -178,6 +178,42 @@ docker start l4n-hcp
 docker rm -f l4n-hcp
 ```
 
+### Building the Image
+
+The image is built from the single `Dockerfile` with BuildKit (the default since Docker 23).
+
+The installers are not in the repository. Put these files in `build/packages/` first:
+
+| File |
+|---|
+| `MATLAB_Runtime_R2022b_Update_7_glnxa64.zip` |
+| `MRIcroGL_linux.zip` |
+| `dcm2niix_lnx.zip` |
+| `freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.1.tar.gz` |
+| `fsl-6.0.7.23-jammy.tar.gz` |
+| `libpng12-0_1.2.54-1ubuntu1.1+1~ppa0~eoan_amd64.deb` |
+| `msm_ubuntu_v3` |
+| `workbench-linux64-v2.2.1.zip` |
+
+`fsl-6.0.7.23-jammy.tar.gz` is a tarball of FSL 6.0.7.23 freshly installed with `fslinstaller.py` on Ubuntu 22.04. It holds the top-level directory `fsl/` (extracted to `/usr/local/fsl`) and leaves out the conda package cache `pkgs/`.
+
+```bash
+docker build --progress=plain -t kytk/l4n-hcppipelines:latest . 2>&1 | tee build.log
+```
+
+**Using an Ubuntu mirror (optional):** apt downloads from `archive.ubuntu.com` by default. A nearby mirror can be given with `UBUNTU_MIRROR`:
+
+```bash
+docker build --progress=plain \
+  --build-arg UBUNTU_MIRROR=https://ftp.riken.jp/Linux/ubuntu \
+  -t kytk/l4n-hcppipelines:latest . 2>&1 | tee build.log
+```
+
+- `https://` is recommended. On some networks (e.g. behind a caching proxy) HTTP downloads come back broken and apt stops with "Hash Sum mismatch"
+- The mirror is used only during the build; the image's `/etc/apt/sources.list` still points to `archive.ubuntu.com`
+- `security.ubuntu.com` is not replaced
+- Changing the value rebuilds all stages, so keep using the same mirror
+
 ### Notes
 
 - This Docker image is provided for research and educational purposes only
@@ -368,6 +404,42 @@ docker start l4n-hcp
 ```bash
 docker rm -f l4n-hcp
 ```
+
+### イメージのビルド
+
+イメージは 1 つの `Dockerfile` から BuildKit（Docker 23 以降の既定）でビルドします。
+
+インストーラ類はリポジトリに含まれていません。先に次のファイルを `build/packages/` に置いてください：
+
+| ファイル |
+|---|
+| `MATLAB_Runtime_R2022b_Update_7_glnxa64.zip` |
+| `MRIcroGL_linux.zip` |
+| `dcm2niix_lnx.zip` |
+| `freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.1.tar.gz` |
+| `fsl-6.0.7.23-jammy.tar.gz` |
+| `libpng12-0_1.2.54-1ubuntu1.1+1~ppa0~eoan_amd64.deb` |
+| `msm_ubuntu_v3` |
+| `workbench-linux64-v2.2.1.zip` |
+
+`fsl-6.0.7.23-jammy.tar.gz` は、Ubuntu 22.04 に `fslinstaller.py` で新しくインストールした FSL 6.0.7.23 を tar にしたものです。最上位のディレクトリは `fsl/`（`/usr/local/fsl` に展開されます）で、conda のパッケージキャッシュ `pkgs/` は含めません。
+
+```bash
+docker build --progress=plain -t kytk/l4n-hcppipelines:latest . 2>&1 | tee build.log
+```
+
+**Ubuntu のミラーを使う（任意）：** apt は既定では `archive.ubuntu.com` から取得します。`UBUNTU_MIRROR` で近くのミラーを指定できます：
+
+```bash
+docker build --progress=plain \
+  --build-arg UBUNTU_MIRROR=https://ftp.riken.jp/Linux/ubuntu \
+  -t kytk/l4n-hcppipelines:latest . 2>&1 | tee build.log
+```
+
+- `https://` を推奨します。ネットワークによっては（キャッシュするプロキシの内側など）HTTP で取得したファイルが壊れていて、apt が「Hash Sum mismatch」で止まります
+- ミラーを使うのはビルドの間だけです。イメージの `/etc/apt/sources.list` は `archive.ubuntu.com` のままです
+- `security.ubuntu.com` は置き換えません
+- 値を変えるとすべてのステージがビルドし直しになるので、同じミラーを使い続けてください
 
 ### 注意事項
 
