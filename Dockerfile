@@ -13,6 +13,10 @@
 #     --build-arg UBUNTU_MIRROR=https://ftp.riken.jp/Linux/ubuntu \
 #     -t kytk/l4n-hcppipelines:latest . 2>&1 | tee build.log
 
+# Ver.261012
+#   - fsleyes: every run (e.g. "fsleyes render" in hcppipe_qc) ended with
+#     "OSError: [Errno 9] Bad file descriptor" tracebacks; filtermain.py
+#     closed its fds twice. Patched in fsl-builder
 # Ver.261008
 #   - FSL's own numpy: 2.4.6 -> 2.3.5 (conda-forge), the same as /opt/venv,
 #     for Rosetta on macOS. Only numpy changes; pinned in conda-meta/pinned
@@ -233,6 +237,60 @@ RUN set -ex && \
     echo "numpy ==2.3.5" >> /usr/local/fsl/conda-meta/pinned && \
     /usr/local/fsl/bin/python -c "import numpy, scipy, sklearn, pandas, nibabel, h5py, numba, fsl.data.image; assert numpy.__version__ == '2.3.5', numpy.__version__; print('FSL numpy', numpy.__version__)" && \
     rm -rf /usr/local/fsl/pkgs /tmp/fsl-*.txt
+
+# fsleyes (1.20.1) filtermain.py patch.
+#
+# The fsleyes launcher filters stdout/stderr through a pipe read by helper
+# threads. When it exits, it os.close()s the pipe's read end and the saved
+# original fd, but both are still owned by the TextIOWrapper objects fin and
+# fout. When the threads finish, those objects are freed and close the same
+# fds again, so every run (e.g. "fsleyes render" in hcppipe_qc) ends with
+# several "OSError: [Errno 9] Bad file descriptor" tracebacks under
+# Python 3.14, although the exit status and the output are fine. Close them
+# through the file objects instead (see LOG.md, 2026-10-12).
+#
+# Every pattern is asserted before it is replaced, so that a newer fsleyes
+# which has changed (or fixed) this code stops the build instead of being
+# patched blindly.
+RUN /usr/local/fsl/bin/python - <<'PATCH'
+import sys, py_compile
+import fsleyes, fsleyes.filtermain as fm
+
+path = fm.__file__
+
+edits = [
+    # The read thread closes fin itself once it sees EOF.
+    ("            if line == '':\n"
+     "                break\n"
+     "            q.put(line)\n",
+     "            if line == '':\n"
+     "                break\n"
+     "            q.put(line)\n"
+     "        fin.close()\n"),
+
+    # dup2 puts the original stream back on fd (which also closes the pipe's
+    # write end, so the read thread gets EOF); fout owns oldfd and closes it.
+    ("            os.close(fd)\n"
+     "            os.close(piper)\n"
+     "            os.dup2(oldfd, fd)\n"
+     "            os.close(oldfd)\n",
+     "            os.dup2(oldfd, fd)\n"
+     "            fout.close()\n"),
+]
+
+print("fsleyes", fsleyes.__version__, path)
+s = open(path).read()
+for old, new in edits:
+    if s.count(old) != 1:
+        sys.exit("patch target appears %d times in %s: %r"
+                 % (s.count(old), path, old))
+    s = s.replace(old, new, 1)
+open(path, "w").write(s)
+# The stale .pyc would otherwise be recompiled in memory on every run
+# (brain cannot write to /usr/local/fsl).
+py_compile.compile(path, doraise=True)
+print("patched", path)
+PATCH
 
 #------------------------------------------------------------------------------
 # hcp-builder: HCP Pipelines v6.0.0 + modified example scripts
