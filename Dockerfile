@@ -13,6 +13,10 @@
 #     --build-arg UBUNTU_MIRROR=https://ftp.riken.jp/Linux/ubuntu \
 #     -t kytk/l4n-hcppipelines:latest . 2>&1 | tee build.log
 
+# Ver.261018
+#   - auto_clean_metadata.sh: removes macOS ._* / .DS_Store from the shared
+#     folder (they stop the file manager from opening). Run by hand; cleans
+#     once, or every 10 seconds with --watch
 # Ver.261012
 #   - fsleyes: every run (e.g. "fsleyes render" in hcppipe_qc) ended with
 #     "OSError: [Errno 9] Bad file descriptor" tracebacks; filtermain.py
@@ -502,6 +506,11 @@ COPY --chmod=755 build/init/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY --chmod=755 build/init/startup.sh /usr/local/bin/startup.sh
 COPY --chmod=755 build/init/wait-for-x.sh /usr/local/bin/wait-for-x.sh
 COPY --chmod=755 build/init/slurm-init.sh /usr/local/bin/slurm-init.sh
+# macOS の共有フォルダで生成される ._* / .DS_Store を消すスクリプト。これらがあると
+# コンテナの GUI でファイルマネージャが開けなくなる。自動起動はしない（share には
+# StudyFolder があり、被験者 1 人で数万ファイルになるので常時走査は重い）。困ったときに
+# 端末から auto_clean_metadata.sh で 1 回掃除、--watch で 10 秒ごとに常駐（LOG.md 19 章）
+COPY --chmod=755 build/bin/auto_clean_metadata.sh /usr/local/bin/auto_clean_metadata.sh
 
 # The user itself was created in Part 0; only its shell files, the VNC
 # password and a few empty directories remain. No recursive chown over
