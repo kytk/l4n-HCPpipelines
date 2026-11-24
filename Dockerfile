@@ -2,7 +2,7 @@
 
 # Dockerfile for kytk/l4n-HCPpipeline with Multi-Stage Build
 # Author: K. Nemoto
-# Date: 8 Oct 2026
+# Date: 23 Nov 2026
 # Description: This Dockerfile uses a multi-stage build to create a smaller,
 #              optimized container image for HCP Pipelines 6.x.
 #
@@ -13,6 +13,8 @@
 #     --build-arg UBUNTU_MIRROR=https://ftp.riken.jp/Linux/ubuntu \
 #     -t kytk/l4n-hcppipelines:latest . 2>&1 | tee build.log
 
+# Ver.261123
+#   - add HEALTHCHECK
 # Ver.261018
 #   - auto_clean_metadata.sh: removes macOS ._* / .DS_Store from the shared
 #     folder (they stop the file manager from opening). Run by hand; cleans
@@ -404,7 +406,9 @@ RUN --mount=type=bind,source=build/packages/libpng12-0_1.2.54-1ubuntu1.1+1~ppa0~
     # NeuroDebian is no longer needed: Connectome Workbench was the only
     # package taken from it, and it now comes from the official build in
     # build/packages (see tools-builder). That build bundles its own Qt6.
-    apt-get update && \
+    # --error-on=any: without it a failed fetch (e.g. a 503 from the PPA) is
+    # only a warning and the build fails later at "Unable to locate python3.12".
+    apt-get update --error-on=any && \
     apt-get install -y --no-install-recommends firefox && \
     apt-get install -y --no-install-recommends python3.12 python3.12-venv python3.12-tk && \
     xdg-mime default firefox.desktop text/html && \
@@ -594,6 +598,13 @@ PATCH
 
 # Expose port for noVNC
 EXPOSE 6080
+
+# "healthy" once the window manager is up and noVNC answers, so that launcher
+# scripts (e.g. l4n-BMB's bmb-2027-launcher) can wait with
+# "docker inspect --format '{{.State.Health.Status}}'" instead of a fixed sleep.
+# Metadata only: adds no layer.
+HEALTHCHECK --interval=10s --timeout=5s --start-period=120s --retries=3 \
+  CMD pgrep -x xfwm4 >/dev/null && wget -qO- http://127.0.0.1:6080/vnc.html >/dev/null || exit 1
 
 # startup.sh runs as ROOT first, then switches to brain user
 ENV USER=brain
